@@ -60,7 +60,9 @@ class App:
             # bg
             "backdrop": load_image("tiles/background.png"),
             "tiles/large_decor": load_animation("tiles/Cloud_large_decor.png", [50, 50], 6),
-            "clouds_single": load_image("tiles/clouds_single.png")
+            "clouds_single": load_image("tiles/clouds_single.png"),
+            # particles
+            "fire": load_animation("flame.png", [5, 5], 9)
         }
         self.kickup_palette = load_palette(self.assets["tiles/cloud"][0])
 
@@ -110,6 +112,17 @@ class App:
         self.kickup = []
         self.sparks = []
         self.smoke = []
+        self.fire = []
+    
+    def update_fire(self, render_scroll):
+        # [pos, frame]
+        for i, f in sorted(enumerate(self.fire), reverse=True):
+            f[0][1] -= 2 * self.dt;
+            f[1] += 0.5 * self.dt
+            if f[1] >= len(self.assets['fire']):
+                self.fire.pop(i)
+            else:
+                self.screen.blit(self.assets['fire'][math.floor(f[1])], (f[0][0] - render_scroll[0] - 2.5, f[0][1] - render_scroll[1] - 2.5))
 
     def update_kickup(self, render_scroll):
         # particle: [pos, vel, size, color]
@@ -378,6 +391,7 @@ class App:
             if bit.timer > SMOKE_DELAY // FADE:
                 self.smoke.pop(i)
             bit.draw(self.screen, render_scroll)
+        self.update_fire(render_scroll)
 
         self.player.draw(self.screen, render_scroll)
         
