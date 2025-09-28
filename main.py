@@ -40,6 +40,7 @@ class App:
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
             "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
             "tiles/rock": load_tile_imgs("tiles/rock.png", 8),
+            "tiles/portal": load_tile_imgs("tiles/portal.png", 8),
             "sfx/explosion": load_sound("sfx/explosion.ogg"),
             # sfx
             "sfx/jump": load_sound("sfx/jump.ogg"),
@@ -69,6 +70,17 @@ class App:
 
         self.game_over_message = random.randint(0, 4)
         self.state = "menu"
+        
+        # Portal transition system
+        self.transition_state = "none"  
+        self.transition_timer = 0.0
+        self.transition_duration = 0.7  # 0.7 seconds for each fade
+        self.next_level = None
+        self.current_level = 0
+        self.max_levels = 2  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
+        
+        # Fall detection threshold
+        self.fall_threshold = 400  # If player falls below this Y position, restart
 
         self.player = Player(self, [5, 8], [50, -10])
 
@@ -95,13 +107,122 @@ class App:
         self.screen.blit(self.prompt_go_2, ((self.prompt_go_x - self.prompt_go_2.get_width() // 2 + 100), (self.prompt_go_y + 50 - self.prompt_go_2.get_height() // 2)))
         self.screen.blit(self.prompt_go, ((self.prompt_go_x - self.prompt_go.get_width() // 2 + 100), (self.prompt_go_y + 50 - self.prompt_go.get_height() // 2) + 75))
     
-    # put all the game stuff here
-    def update(self):
-        # Update tile destruction timers
-        self.tile_map.update(self.dt / 60.0)  # Convert dt to seconds
+    def start_level_transition(self, next_level):
+        """Start the fade-out transition to a new level"""
+        if self.transition_state == "none":
+            self.transition_state = "fade_out"
+            self.transition_timer = 0.0
+            self.next_level = next_level
+            # Play portal sound
+            if "sfx/portal" in self.assets:
+                self.assets["sfx/portal"].play()
+    
+    def update_transition(self, dt):
+        """Update the level transition animation"""
+        if self.transition_state == "none":
+            return
         
-        self.player.update(self.dt, self.tile_map)
+        self.transition_timer += dt
+        
+        if self.transition_state == "fade_out":
+            if self.transition_timer >= self.transition_duration:
+                # Fade out complete, load new level and start fade in
+                self.load_level(self.next_level)
+                self.transition_state = "fade_in"
+                self.transition_timer = 0.0
+                
+        elif self.transition_state == "fade_in":
+            if self.transition_timer >= self.transition_duration:
+                # Transition complete
+                self.transition_state = "none"
+                self.transition_timer = 0.0
+                self.next_level = None
+    
+    def load_level(self, level_number):
+        """Load a new level"""
+        self.current_level = level_number
+        level_file = f"data/maps/{level_number}.json"
+        
+        # Reset player position for new level
+        self.player.pos = pygame.Vector2(50, 10)
+        self.player.movement = pygame.Vector2(0, 0)
+        
+        # Load new level
+        self.tile_map = TileMap(self)
+        try:
+            self.tile_map.load(level_file)
+        except FileNotFoundError:
+            # If level doesn't exist, wrap around to level 0
+            self.current_level = 0
+            self.tile_map.load("data/maps/0.json")
+    
+    def draw_transition_overlay(self):
+        """Draw the fade overlay during transitions"""
+        if self.transition_state == "none":
+            return
+        
+        # Calculate fade alpha
+        progress = self.transition_timer / self.transition_duration
+        
+        if self.transition_state == "fade_out":
+            # Fade to black (ease out)
+            alpha = int(255 * self.ease_out(progress))
+        elif self.transition_state == "fade_in":
+            # Fade from black (ease in)
+            alpha = int(255 * (1 - self.ease_in(progress)))
+        
+        # Create fade overlay
+        fade_surface = pygame.Surface((self.screen.get_width(), self.screen.get_height()))
+        fade_surface.fill((0, 0, 0))
+        fade_surface.set_alpha(alpha)
+        self.screen.blit(fade_surface, (0, 0))
+    
+    def ease_out(self, t):
+        """Ease out function for smooth fade"""
+        return 1 - (1 - t) ** 3
+    
+    def ease_in(self, t):
+        """Ease in function for smooth fade"""
+        return t ** 3
+    
+    # put all the game stuff here
+    def restart_game(self):
+        self.current_level = 0
+        self.player.pos = pygame.Vector2(50, 10)
+        self.player.movement = pygame.Vector2(0, 0)
+        self.player.falling = 30
+        self.transition_state = "none"
+        self.transition_timer = 0.0
+        self.tile_map = TileMap(self)
+        self.tile_map.load("data/maps/0.json")
+        self.state = "game"
 
+    def reset_player_position(self):
+        """Reset only the player position without changing level"""
+        self.player.pos = pygame.Vector2(50, 10)
+        self.player.movement = pygame.Vector2(0, 0)
+        self.player.falling = 30
+
+    def update(self):
+        # Update transitions
+        self.update_transition(self.dt / 60.0)
+        
+        # Only update game logic if not transitioning
+        if self.transition_state == "none":
+            # Update tile destruction timers
+            self.tile_map.update(self.dt / 60.0)  # Convert dt to seconds
+            
+            self.player.update(self.dt, self.tile_map)
+            
+            # Check if player has fallen too far (restart game)
+            if self.player.pos.y > self.fall_threshold:
+                self.reset_player_position()
+                return
+            
+            # Check for portal collision
+            self.check_portal_collision()
+
+        # Always update camera and rendering
         self.scroll.x += (self.player.pos.x - self.screen.get_width() / 2 - self.scroll.x) * 0.1 * self.dt
         self.scroll.y += (self.player.pos.y - self.screen.get_height() / 2 - self.scroll.y) * 0.05 * self.dt
 
@@ -112,6 +233,22 @@ class App:
         self.tile_map.draw(self.screen, render_scroll)
 
         self.player.draw(self.screen, render_scroll)
+        
+        # Draw transition overlay
+        self.draw_transition_overlay()
+    
+    def check_portal_collision(self):
+        """Check if player is colliding with a portal tile"""
+        player_rect = self.player.get_rect()
+        player_center = (player_rect.centerx, player_rect.centery)
+        
+        # Check tiles around player for portals
+        tiles_around = self.tile_map.tiles_around(player_center)
+        for tile in tiles_around:
+            if tile['type'] == 'portal':
+                # Player touched portal, start transition to next level
+                next_level = (self.current_level + 1) % self.max_levels
+                self.start_level_transition(next_level)
 
     # asynchronous main loop to run in browser
     async def run(self):
@@ -126,19 +263,20 @@ class App:
                     mx //= SCALE
                     my //= SCALE
                     if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_y <= my <= self.prompt_m_y + 100:
-                        self.state = "game"
-                        #INSERT RESET FUNCTION HERE
+                        self.restart_game()
                 if event.type == pygame.MOUSEBUTTONDOWN and self.state == "game_over":
                     mx, my = pygame.mouse.get_pos()
                     mx //= SCALE
                     my //= SCALE
                     if self.prompt_go_x <= mx <= self.prompt_go_x + 200 and self.prompt_go_y <= my <= self.prompt_go_y + 100:
-                        self.state = "game"
-                        #INSERT RESET FUNCTION HERE
+                        self.restart_game()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN and self.state in ["menu", "game_over"]:
-                        self.state = "game"
-                        #INSERT RESET FUNCTION HERE
+                    if event.key == pygame.K_RETURN:
+                        self.restart_game()
+                    if event.key == pygame.K_k:
+                        self.restart_game()
+                    if event.key == pygame.K_r:
+                        self.reset_player_position()
                     if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.player.jumping = 0
                         self.player.controls['up'] = True

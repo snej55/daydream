@@ -40,13 +40,17 @@ class Player:
         
         # More realistic physics constants
         self.acceleration = 0.9     # How fast we accelerate when input is pressed
-        self.air_acceleration = 0.15  # Reduced acceleration when in air
-        self.friction = 0.8          # Ground friction (0.8 = loses 20% speed per frame)
-        self.air_resistance = 0.95   # Air resistance (0.95 = loses 5% speed per frame) 
+        self.deceleration = 0.50    # How fast we decelerate when no input (stronger than friction)
+        self.air_acceleration = 0.25  # Reduced acceleration when in air
+        self.air_deceleration = 0.98  # Slower deceleration in air
+        self.friction = 0.8          # Ground friction (applied always)
+        self.air_resistance = 0.95   # Air resistance (applied always in air) 
         self.max_speed = 3        # Maximum horizontal speed
         self.gravity = 0.25          # Gravity strength
         self.max_fall_speed = 6      # Terminal velocity
         self.jump_power = -4.5      # Jump strength (negative = upward)
+        self.decel_threshold = 0.1   # Speed below which we stop completely
+        # self.app.assets['sfx/raining'].play()
 
         self.flip = False
         self.idle = Anim(0.1, self.app.assets['player/idle'])
@@ -87,29 +91,44 @@ class Player:
         on_ground = self.falling < 5
         self.grounded += dt
         
-        # Horizontal movement with realistic acceleration/deceleration
+        # Horizontal movement with enhanced acceleration/deceleration
         target_speed = 0
+        input_pressed = False
+        
         if self.controls['left']:
             self.flip = True
             target_speed = -self.max_speed
+            input_pressed = True
         elif self.controls['right']:
             self.flip = False
             target_speed = self.max_speed
+            input_pressed = True
         
         # Apply acceleration or deceleration
         speed_diff = target_speed - self.movement.x
         
         if on_ground:
-            # Ground movement - faster acceleration and stronger friction
-            if abs(speed_diff) > 0.1:  # Accelerating toward target
+            if input_pressed and abs(speed_diff) > 0.1:
+                # Accelerating toward target speed
                 self.movement.x += speed_diff * self.acceleration * dt
-            # Apply ground friction
+            elif not input_pressed:
+                # No input - apply strong deceleration
+                self.movement.x *= pow(self.deceleration, dt)
+                # Stop completely if speed is very low
+                if abs(self.movement.x) < self.decel_threshold:
+                    self.movement.x = 0
+            
+            # Always apply base friction
             self.movement.x *= pow(self.friction, dt)
         else:
-            # Air movement - slower acceleration, less control
-            if abs(speed_diff) > 0.1:
+            if input_pressed and abs(speed_diff) > 0.1:
+                # Air acceleration (reduced control)
                 self.movement.x += speed_diff * self.air_acceleration * dt
-            # Apply air resistance
+            elif not input_pressed:
+                # No input in air - gentle deceleration
+                self.movement.x *= pow(self.air_deceleration, dt)
+            
+            # Always apply air resistance
             self.movement.x *= pow(self.air_resistance, dt)
         
         # Clamp horizontal speed to max
