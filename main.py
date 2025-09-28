@@ -59,9 +59,8 @@ class App:
         
         self.large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 11)
 
-        self.state = "game_over"
         self.game_over_message = random.randint(0, 4)
-        self.state = "game"
+        self.state = "menu"
 
         self.player = Player(self, [7, 12], [50, 10])
     
