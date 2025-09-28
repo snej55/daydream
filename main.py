@@ -51,7 +51,9 @@ class App:
             "player/idle": load_animation("player/idle.png", [5, 8], 5),
             "player/run": load_animation("player/run.png", [5, 8], 4),
             "player/jump": load_animation("player/jump.png", [5, 8], 4),
-            "player/land": load_animation("player/land.png", [5, 8], 5)
+            "player/land": load_animation("player/land.png", [5, 8], 5),
+            # bg
+            "backdrop": load_image("tiles/background.png")
         }
 
         self.tile_map = TileMap(self)
@@ -229,7 +231,7 @@ class App:
         self.screen_shake = max(0, self.screen_shake - 1 * self.dt)
         screen_shake_offset = (random.random() * self.screen_shake - self.screen_shake / 2, random.random() * self.screen_shake - self.screen_shake / 2)
         render_scroll = (int(self.scroll.x + screen_shake_offset[0]), int(self.scroll.y + screen_shake_offset[1]))
-        self.screen.fill((0, 0, 0))
+        self.screen.blit(pygame.transform.scale(self.assets['backdrop'], self.screen.get_size()), (0, 0))
         self.tile_map.draw(self.screen, render_scroll)
 
         self.player.draw(self.screen, render_scroll)
