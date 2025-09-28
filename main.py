@@ -1,7 +1,7 @@
 import asyncio, pygame, time, math, sys, platform
 
 from src.util import load_image, load_sound, load_tile_imgs
-from src.tiles import TileMap
+from src.tiles import TileMapy
 
 # conor was here
 pygame.init()
@@ -43,12 +43,16 @@ class App:
 
         self.scroll = pygame.Vector2(0, 0)
         self.screen_shake = 0
+
+        self.state = "menu"
     
+
+    def menu():
+        
+        pass
+
     # put all the game stuff here
     def update(self):
-        # update delta time
-        self.dt = (time.time() - self.last_time) * 60
-        self.last_time = time.time()
 
         render_scroll = (int(self.scroll.x), int(self.scroll.y))
 
@@ -64,6 +68,12 @@ class App:
                 if event.type == pygame.WINDOWRESIZED:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
             
+            # update delta time
+            self.dt = (time.time() - self.last_time) * 60
+            self.last_time = time.time()
+
+            if self.state == "menu":
+                
             # update game
             self.update()
 
