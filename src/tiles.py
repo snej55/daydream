@@ -199,7 +199,7 @@ class TileMap:
             if tile_loc in self.tile_map:  # Safety check
                 del self.tile_map[tile_loc]
                 self.auto_tile()
-                self.app.screen_shake = max(self.app.screen_shake, 6)
+                self.app.screen_shake = max(self.app.screen_shake, 4)
                 tile_pos = [int(coord) * 8 for coord in tile_loc.split(';')]
                 for _ in range(random.randint(10, 20)):
                     speed = random.random() + 2
@@ -207,6 +207,10 @@ class TileMap:
                     self.app.kickup.append([[tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], [math.cos(angle) * speed, math.sin(angle) * speed], random.random() + 9, random.choice(self.app.kickup_palette)])
                 for _ in range(random.randint(10, 20)):
                     self.app.sparks.append(Spark([tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], random.random() * 2 * math.pi, random.random() * 1.5 + 0.5, (255, 255, 255)))
+                for _ in range(random.randint(30, 50)):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random() + 0.5
+                    self.app.smoke.append([[tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], [math.cos(angle) * speed, math.sin(angle) * speed], 1, random.randint(200, 255), 0, random.randint(0, 360), (200, 200, 255)])
 
         # Cascade destruction to adjacent tiles (optional chain reaction)
         # Uncomment the lines below if you want chain reactions
@@ -232,7 +236,25 @@ class TileMap:
                 loc = str(x) + ';' + str(y)
                 if loc in self.tile_map:
                     tile = self.tile_map[loc]
-                    tile_surf = self.app.assets[f"tiles/{tile['type']}"][tile['variant']].copy()
+                    
+                    # Bounds check for tile variant to prevent IndexError
+                    tile_type = tile['type']
+                    tile_variant = tile['variant']
+                    
+                    # Check if tile type exists in assets
+                    if f"tiles/{tile_type}" in self.app.assets:
+                        tile_assets = self.app.assets[f"tiles/{tile_type}"]
+                        # Clamp variant to available range
+                        if tile_variant >= len(tile_assets):
+                            tile_variant = 0  # Fall back to first variant
+                        tile_surf = tile_assets[tile_variant].copy()
+                    else:
+                        # Fallback to a default tile if type doesn't exist
+                        print(f"Warning: Tile type '{tile_type}' not found in assets")
+                        if "tiles/grass" in self.app.assets:
+                            tile_surf = self.app.assets["tiles/grass"][0].copy()
+                        else:
+                            continue  # Skip this tile if no fallback available
                     
                     # Add visual feedback for tiles that are about to be destroyed
                     if tile['walked_on'] and tile['type'] in DESTRUCTIBLE_TILES:
