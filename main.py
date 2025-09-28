@@ -92,7 +92,7 @@ class App:
         #menu loading
         self.prompt = self.large_font.render("Press ENTER to start", True, (255, 255, 255))
         self.logo_text = self.large_font.render("System of a Cloud", True, (255, 255, 255))
-
+        self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
         self.kickup = []
 
     def update_kickup(self, render_scroll):
@@ -120,6 +120,13 @@ class App:
         self.screen.fill((0, 0, 0))
         self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 2 - self.prompt.get_height() // 2))
         self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 10 - self.logo_text.get_height() // 2))        
+    
+        self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
+    def menu(self):
+        self.screen.fill((0, 0, 0))
+        self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 1.55 - self.prompt.get_height() // 2))
+        self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 1.8 - self.logo_text.get_height() // 2))        
+        self.screen.blit(self.logo, (self.screen.get_width() // 2 - self.logo.get_width() // 2, self.screen.get_height() // 3.5 - self.logo.get_height() // 2))
     
     def start_level_transition(self, next_level):
         """Start the fade-out transition to a new level"""
@@ -365,7 +372,7 @@ class App:
                     if event.key == pygame.K_ESCAPE:
                         print('Game Quitted')
                         return 
-                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w or event.key == pygame.K_BACKSPACE:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
@@ -375,7 +382,7 @@ class App:
                     if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.player.controls['right'] = True
                 elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w or event.key == pygame.K_BACKSPACE:
                         self.player.controls['up'] = False
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                         self.player.controls['down'] = False
