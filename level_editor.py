@@ -14,11 +14,7 @@ LEVEL_WIDTH = 20
 LEVEL_HEIGHT = 20
 
 # json map path
-<<<<<<< HEAD
-MAP = "data/maps/7.json"
-=======
-MAP = "data/maps/3.json"
->>>>>>> cc00e448ba9ace491dd28f2168e84d030859f743
+MAP = "data/maps/1.json"
 
 # tile sets that can be autotiled
 AUTO_TILE_TYPES = {'grass', 'cloud', 'rock', 'portal', 'moss'}
