@@ -8,7 +8,7 @@ PHYSICS_TILES = {'stone', 'cloud', 'grass'}
 # tiles that can be destroyed after being walked on
 DESTRUCTIBLE_TILES = {'grass'}
 # time in seconds before tile destroys after being walked on
-DESTRUCTION_TIME = 200
+DESTRUCTION_TIME = 0.1
 
 class TileMap:
     def __init__(self, app):
@@ -83,18 +83,18 @@ class TileMap:
             if tile['type'] in DESTRUCTIBLE_TILES and not tile['walked_on']:
                 tile['walked_on'] = True
                 tile['destruction_timer'] = DESTRUCTION_TIME + delay
-                print(f"Marked tile {tile_loc} for destruction in {DESTRUCTION_TIME + delay} seconds")
+                # print(f"Marked tile {tile_loc} for destruction in {DESTRUCTION_TIME + delay} seconds")
         else:
             print(f"Tile {tile_loc} not found in tile_map")
     
     def mark_tile_walked_on(self, pos):
         """Mark tiles in a 3x3 pattern centered 1 block higher than the landing position"""
         tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
-        print(f"Player landed on tile {tile_loc}, destroying 3x3 area centered 1 block higher")
+        # print(f"Player landed on tile {tile_loc}, destroying 3x3 area centered 1 block higher")
         
         # Get the 3x3 destruction area centered 1 block higher
         destruction_tiles = self.get_3x3_destruction_area(tile_loc)
-        print(f"Found {len(destruction_tiles)} tiles in 3x3 destruction area")
+        # print(f"Found {len(destruction_tiles)} tiles in 3x3 destruction area")
         
         # Mark all tiles in the 3x3 area for destruction
         for i, target_tile_loc in enumerate(destruction_tiles):
