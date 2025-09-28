@@ -250,10 +250,6 @@ class App:
         # Draw portal distance progress bar (only during gameplay)
         if self.state == "game" and self.transition_state == "none":
             self.draw_portal_progress_bar()
-        
-        # Draw portal distance progress bar (only during gameplay)
-        if self.state == "game" and self.transition_state == "none":
-            self.draw_portal_progress_bar()
     
     def find_portal_position(self):
         """Find the position of the portal tile in the current level"""
