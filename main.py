@@ -342,7 +342,7 @@ class App:
                     if event.key == pygame.K_ESCAPE:
                         print('Game Quitted')
                         return 
-                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w or event.key == pygame.K_BACKSPACE:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
@@ -352,7 +352,7 @@ class App:
                     if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.player.controls['right'] = True
                 elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w or event.key == pygame.K_BACKSPACE:
                         self.player.controls['up'] = False
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                         self.player.controls['down'] = False
