@@ -1,6 +1,6 @@
 import asyncio, pygame, random, time, math, sys, platform
 
-from src.util import load_image, load_sound, load_tile_imgs, load_animation
+from src.util import load_image, load_sound, load_tile_imgs, load_animation, load_palette
 from src.tiles import TileMap
 from src.player import Player
 
@@ -59,6 +59,7 @@ class App:
             "tiles/large_decor": load_animation("tiles/large_decor.png", [50, 50], 6),
             "clouds_single": load_image("tiles/clouds_single.png")
         }
+        self.kickup_palette = load_palette(self.assets["tiles/cloud"][0])
 
         self.tile_map = TileMap(self)
         self.tile_map.load(MAP)
@@ -102,6 +103,29 @@ class App:
         #menu loading
         self.prompt = self.large_font.render("Press ENTER to start", True, (255, 255, 255))
         self.logo_text = self.large_font.render("System of a Cloud", True, (255, 255, 255))
+        self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
+        self.kickup = []
+
+    def update_kickup(self, render_scroll):
+        # particle: [pos, vel, size, color]
+        for i, p in sorted(enumerate(self.kickup), reverse=True):
+            p[0][0] += p[1][0] * self.dt
+            if self.tile_map.solid_check(p[0]):
+                p[1][0] *= -0.8
+                p[1][1] *= 0.999
+
+            p[1][1] += 0.1 * self.dt
+            p[0][1] += p[1][1] * self.dt
+            if self.tile_map.solid_check(p[0]):
+                p[1][1] *= -0.8
+                p[1][0] *= 0.999
+
+            p[2] -= 0.1 * self.dt
+            if p[2] <= 0:
+                self.kickup.pop(i)
+            else:
+                color = pygame.Color(p[3][0], p[3][1], p[3][2], p[2] / 10 * 255)
+                self.screen.set_at((p[0][0] - render_scroll[0], p[0][1] - render_scroll[1]), color)
 
     def menu(self):
         self.screen.fill((0, 0, 0))
@@ -153,6 +177,15 @@ class App:
                 
                 # Draw cloud (no scroll offset for background elements)
                 self.screen.blit(cloud_img, (int(cloud['x']), int(cloud['y'])))
+    
+    
+        self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
+
+    def menu(self):
+        self.screen.fill((0, 0, 0))
+        self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 1.55 - self.prompt.get_height() // 2))
+        self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 1.8 - self.logo_text.get_height() // 2))        
+        self.screen.blit(self.logo, (self.screen.get_width() // 2 - self.logo.get_width() // 2, self.screen.get_height() // 3.5 - self.logo.get_height() // 2))
     
     def start_level_transition(self, next_level):
         """Start the fade-out transition to a new level"""
@@ -323,6 +356,8 @@ class App:
         self.draw_floating_clouds('below')
         
         self.tile_map.draw(self.screen, render_scroll)
+
+        self.update_kickup(render_scroll)
         self.player.draw(self.screen, render_scroll)
         
         # Draw transition overlay
