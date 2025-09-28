@@ -33,7 +33,9 @@ class App:
 
         # sfx & image assets
         self.assets = {
-            "tiles/grass": load_image("grass.png")
+            "tiles/grass": load_image("grass.png"),
+            "sfx/explosion": load_sound("sfx/explosion_trimmed.ogg")
+            
         }
     
     # put all the game stuff here
