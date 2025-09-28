@@ -47,7 +47,10 @@ class App:
             "sfx/portal": load_sound("sfx/portal.ogg"),
             "sfx/raining": load_sound("sfx/raining.ogg"),
             # player
-            "player/idle": load_animation("player/idle.png", [5, 8], 5)
+            "player/idle": load_animation("player/idle.png", [5, 8], 5),
+            "player/run": load_animation("player/run.png", [5, 8], 4),
+            "player/jump": load_animation("player/jump.png", [5, 8], 4),
+            "player/land": load_animation("player/land.png", [5, 8], 5)
         }
 
         self.tile_map = TileMap(self)
@@ -67,7 +70,7 @@ class App:
         self.game_over_message = random.randint(0, 4)
         self.state = "menu"
 
-        self.player = Player(self, [7, 12], [50, 10])
+        self.player = Player(self, [5, 8], [50, -10])
 
         #menu loading
         self.prompt_m_x = self.screen.get_width() // 2 - 100
@@ -177,7 +180,7 @@ class App:
                 else:
                     pygame.display.set_caption(f"FPS: {self.clock.get_fps() :.1f} Display: {self.screen.get_width()} * {self.screen.get_height()}")
                 # scale display
-                self.display.blit(pygame.transform.scale2x(self.screen), (0, 0))
+                self.display.blit(pygame.transform.scale_by(self.screen, SCALE), (0, 0))
                 pygame.display.flip()
             else:
                 pygame.display.set_caption("IDLE")

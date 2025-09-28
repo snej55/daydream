@@ -3,7 +3,7 @@ from .util import read_json
 
 TILE_SIZE = 8
 # offsets set
-OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1)}
+OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (0, 0)}
 PHYSICS_TILES = {'rock', 'cloud', 'grass'}
 # tiles that can be destroyed after being walked on
 DESTRUCTIBLE_TILES = {'cloud'}
