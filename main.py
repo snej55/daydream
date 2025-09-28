@@ -16,7 +16,7 @@ if WEB_PLATFORM:
     # keep pixelated look for pygbag
     platform.window.canvas.style.imageRendering = "pixelated"
 
-WIDTH, HEIGHT = 640, 480
+WIDTH, HEIGHT = 320, 240
 SCALE = 2
 large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 42)
 small_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 36)
@@ -55,7 +55,6 @@ class App:
 
         self.state = "game"
     
-
     def menu(self):
         self.line_1 = large_font.render("INSERT NAME HERE", False, (255, 255, 255))
         self.line_2 = small_font.render("ENTER to begin...", False, (255, 255, 255))
@@ -64,7 +63,6 @@ class App:
 
     # put all the game stuff here
     def update(self):
-
         render_scroll = (int(self.scroll.x), int(self.scroll.y))
 
         self.screen.fill((0, 0, 0))
