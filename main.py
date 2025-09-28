@@ -36,7 +36,7 @@ class App:
         # sfx & image assets
         self.assets = {
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
-            "sfx/explosion": load_sound("sfx/explosion_trimmed.ogg")
+            # "sfx/explosion": load_sound("sfx/explosion_trimmed.ogg")
         }
 
         self.tile_map = TileMap(self)
