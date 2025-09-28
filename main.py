@@ -246,6 +246,71 @@ class App:
         
         # Draw transition overlay
         self.draw_transition_overlay()
+        
+        # Draw portal distance progress bar (only during gameplay)
+        if self.state == "game" and self.transition_state == "none":
+            self.draw_portal_progress_bar()
+        
+        # Draw portal distance progress bar (only during gameplay)
+        if self.state == "game" and self.transition_state == "none":
+            self.draw_portal_progress_bar()
+    
+    def find_portal_position(self):
+        """Find the position of the portal tile in the current level"""
+        for tile_loc, tile in self.tile_map.tile_map.items():
+            if tile['type'] == 'portal':
+                # Return the center position of the portal tile
+                tile_x = tile['pos'][0] * self.tile_map.tile_size + self.tile_map.tile_size // 2
+                tile_y = tile['pos'][1] * self.tile_map.tile_size + self.tile_map.tile_size // 2
+                return pygame.Vector2(tile_x, tile_y)
+        return None
+    
+    def draw_portal_progress_bar(self):
+        """Draw a progress bar showing distance to portal"""
+        portal_pos = self.find_portal_position()
+        if portal_pos is None:
+            return
+        
+        # Calculate distance between player and portal
+        player_center = pygame.Vector2(self.player.pos.x + self.player.dimensions.x // 2,
+                                     self.player.pos.y + self.player.dimensions.y // 2)
+        distance = player_center.distance_to(portal_pos)
+        
+        # Define max distance for progress bar (adjust as needed)
+        max_distance = 200.0  # pixels
+        
+        # Calculate progress (1.0 = very close, 0.0 = very far)
+        progress = max(0.0, min(1.0, (max_distance - distance) / max_distance))
+        
+        # Progress bar dimensions
+        bar_width = 150
+        bar_height = 8
+        bar_x = (self.screen.get_width() - bar_width) // 2
+        bar_y = 10
+        
+        # Draw background bar
+        pygame.draw.rect(self.screen, (50, 50, 50), (bar_x - 1, bar_y - 1, bar_width + 2, bar_height + 2))
+        pygame.draw.rect(self.screen, (100, 100, 100), (bar_x, bar_y, bar_width, bar_height))
+        
+        # Draw progress bar fill
+        fill_width = int(bar_width * progress)
+        if progress > 0.7:
+            # Close to portal - green
+            color = (0, 255, 0)
+        elif progress > 0.3:
+            # Medium distance - yellow
+            color = (255, 255, 0)
+        else:
+            # Far from portal - red
+            color = (255, 0, 0)
+        
+        if fill_width > 0:
+            pygame.draw.rect(self.screen, color, (bar_x, bar_y, fill_width, bar_height))
+        
+        # Draw label text
+        label_text = self.large_font.render("Portal Distance", True, (255, 255, 255))
+        label_x = (self.screen.get_width() - label_text.get_width()) // 2
+        self.screen.blit(label_text, (label_x, bar_y - 15))
     
     def check_portal_collision(self):
         """Check if player is colliding with a portal tile"""
