@@ -1,5 +1,7 @@
 import pygame, math, random
+
 from .util import read_json
+from .sparks import Spark
 
 TILE_SIZE = 8
 # offsets set
@@ -203,7 +205,9 @@ class TileMap:
                     speed = random.random() + 2
                     angle = random.random() * math.pi * 2
                     self.app.kickup.append([[tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], [math.cos(angle) * speed, math.sin(angle) * speed], random.random() + 9, random.choice(self.app.kickup_palette)])
-        
+                for _ in range(random.randint(10, 20)):
+                    self.app.sparks.append(Spark([tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], random.random() * 2 * math.pi, random.random() * 1.5 + 0.5, (255, 255, 255)))
+
         # Cascade destruction to adjacent tiles (optional chain reaction)
         # Uncomment the lines below if you want chain reactions
         # for tile_loc in tiles_to_cascade:
