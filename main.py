@@ -17,7 +17,7 @@ if WEB_PLATFORM:
     # keep pixelated look for pygbag
     platform.window.canvas.style.imageRendering = "pixelated"
 
-WIDTH, HEIGHT = 320, 240
+WIDTH, HEIGHT = 640, 480
 SCALE = 2
 large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 42)
 small_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 36)
