@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 from .util import read_json
 
 TILE_SIZE = 8
@@ -6,9 +6,13 @@ TILE_SIZE = 8
 OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1)}
 PHYSICS_TILES = {'stone', 'cloud', 'grass'}
 # tiles that can be destroyed after being walked on
-DESTRUCTIBLE_TILES = {'grass'}
+DESTRUCTIBLE_TILES = {'cloud'}
 # time in seconds before tile destroys after being walked on
 DESTRUCTION_TIME = 0.1
+
+AUTO_TILE_TYPES = {'grass', 'cloud'}
+AUTO_TILE_MAP = {'0011': 1, '1011': 2, '1001': 3, '0001': 4, '0111': 5, '1111': 6, '1101': 7, '0101': 8,
+                '0110': 9, '1110': 10, '1100': 11, '0100': 12, '0010': 13, '1010': 14, '1000': 15, '0000': 16}
 
 class TileMap:
     def __init__(self, app):
@@ -42,6 +46,23 @@ class TileMap:
         self.off_grid.extend(data['level']['off_grid'])
         for tile in self.off_grid:
             tile['type'] = tile['type']
+
+    def auto_tile(self):
+        for loc in self.tile_map:
+            tile = self.tile_map[loc]
+            aloc = ''
+            tile_pos = [int(i) * TILE_SIZE for i in loc.split(';')]
+            for shift in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
+                check_loc = str(math.floor(tile_pos[0] / TILE_SIZE) + shift[0]) + ';' + str(math.floor(tile_pos[1] / TILE_SIZE) + shift[1])
+                if check_loc in self.tile_map:
+                    if self.tile_map[check_loc]['type'] in AUTO_TILE_TYPES:
+                        aloc += '1'
+                    else:
+                        aloc += '0'
+                else:
+                    aloc += '0'
+            if tile['type'] in AUTO_TILE_TYPES:
+                tile['variant'] = AUTO_TILE_MAP[aloc] - 1
 
     def tiles_around(self, pos):
         tiles = []
@@ -116,12 +137,14 @@ class TileMap:
                     tiles_to_cascade.append(tile_loc)
                     # Play explosion sound when tile is destroyed
                     if 'sfx/explosion' in self.app.assets:
-                        self.app.assets['sfx/explosion'].play()
+                        pass
+                        # self.app.assets['sfx/explosion'].play()
         
         # Remove destroyed tiles
         for tile_loc in tiles_to_remove:
             if tile_loc in self.tile_map:  # Safety check
                 del self.tile_map[tile_loc]
+                self.auto_tile()
         
         # Cascade destruction to adjacent tiles (optional chain reaction)
         # Uncomment the lines below if you want chain reactions

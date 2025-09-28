@@ -20,7 +20,6 @@ if WEB_PLATFORM:
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
 
-
 MAP = "data/maps/0.json"
 # annelies
 class App:
@@ -38,6 +37,7 @@ class App:
         # sfx & image assets
         self.assets = {
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
+            "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
             "sfx/explosion": load_sound("sfx/explosion.ogg"),
             "sfx/jump": load_sound("sfx/jump.ogg"),
             "sfx/falling": load_sound("sfx/falling.ogg"),
@@ -63,23 +63,27 @@ class App:
         self.state = "menu"
 
         self.player = Player(self, [7, 12], [50, 10])
-    
-    def menu(self):
+
+        #menu loading
         self.prompt_m_x = self.screen.get_width() // 2 - 100
         self.prompt_m_y = self.screen.get_height() // 2 - 50
+        self.prompt_m = self.large_font.render("Click Here or ENTER", True, (255, 255, 255))
+
+        #game over loading
+        self.prompt_go_x = self.screen.get_width() // 2 - 100
+        self.prompt_go_y = self.screen.get_height() // 2 - 50
+        self.game_over_messages = ["Did you get that on camera?", "I'm not mad, just dissapointed", "Caught in 4K", "You did not try your best"]
+        self.message = self.game_over_messages[self.game_over_message % len(self.game_over_messages)]
+        self.prompt_go = self.large_font.render(f"{self.message}", True, (255, 255, 255))
+        self.prompt_go_2 = self.large_font.render("Click Here or ENTER", True, (255, 255, 255))
+
+    def menu(self):
         pygame.draw.rect(self.screen, (100, 0, 0), [self.prompt_m_x, self.prompt_m_y, 200, 100])
-        self.prompt_m = self.large_font.render("Click Here", True, (255, 255, 255))
         self.screen.blit(self.prompt_m, ((self.prompt_m_x - self.prompt_m.get_width() // 2 + 100), (self.prompt_m_y + 50 - self.prompt_m.get_height() // 2)))
 
     def game_over(self):
         self.screen.fill((0, 0, 0))
-        game_over_messages = ["Did you get that on camera?", "I'm not mad, just dissapointed", "Caught in 4K", "You did not try your best"]
-        message = game_over_messages[self.game_over_message % len(game_over_messages)]
-        self.prompt_go_x = self.screen.get_width() // 2 - 100
-        self.prompt_go_y = self.screen.get_height() // 2 - 50
         pygame.draw.rect(self.screen, (100, 0, 0), (self.prompt_go_x, self.prompt_go_y, 200, 100))
-        self.prompt_go = self.large_font.render(f"{message}", True, (255, 255, 255))
-        self.prompt_go_2 = self.large_font.render("Click Here", True, (255, 255, 255))
         self.screen.blit(self.prompt_go_2, ((self.prompt_go_x - self.prompt_go_2.get_width() // 2 + 100), (self.prompt_go_y + 50 - self.prompt_go_2.get_height() // 2)))
         self.screen.blit(self.prompt_go, ((self.prompt_go_x - self.prompt_go.get_width() // 2 + 100), (self.prompt_go_y + 50 - self.prompt_go.get_height() // 2) + 75))
     
@@ -115,14 +119,19 @@ class App:
                     my //= SCALE
                     if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_y <= my <= self.prompt_m_y + 100:
                         self.state = "game"
+                        #INSERT RESET FUNCTION HERE
                 if event.type == pygame.MOUSEBUTTONDOWN and self.state == "game_over":
                     mx, my = pygame.mouse.get_pos()
                     mx //= SCALE
                     my //= SCALE
                     if self.prompt_go_x <= mx <= self.prompt_go_x + 200 and self.prompt_go_y <= my <= self.prompt_go_y + 100:
                         self.state = "game"
+                        #INSERT RESET FUNCTION HERE
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_RETURN and self.state in ["menu", "game_over"]:
+                        self.state = "game"
+                        #INSERT RESET FUNCTION HERE
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
@@ -132,7 +141,7 @@ class App:
                     if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.player.controls['right'] = True
                 elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.player.controls['up'] = False
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                         self.player.controls['down'] = False
