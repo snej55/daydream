@@ -18,6 +18,8 @@ if WEB_PLATFORM:
 
 WIDTH, HEIGHT = 320, 240
 SCALE = 2
+large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 42)
+small_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 36)
 
 MAP = "data/maps/0.json"
 # annelies
@@ -54,7 +56,10 @@ class App:
         self.state = "game"
     
     def menu(self):
-        pass
+        self.line_1 = large_font.render("INSERT NAME HERE", False, (255, 255, 255))
+        self.line_2 = small_font.render("ENTER to begin...", False, (255, 255, 255))
+        self.screen.blit(self.line_1, ((WIDTH - self.line_1.get_width() // 2), (HEIGHT - self.line_1.get_width() // 2)))
+        self.display.blit(self.line_2, ((WIDTH - self.line_2.get_width() // 2), (HEIGHT - self.line_2.get_width() // 2 + 75)))
 
     # put all the game stuff here
     def update(self):
@@ -71,6 +76,9 @@ class App:
                     return
                 if event.type == pygame.WINDOWRESIZED:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN and self.state == "menu":
+                        self.state = "game"
             
             # update delta time
             self.dt = (time.time() - self.last_time) * 60
