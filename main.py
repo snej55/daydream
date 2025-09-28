@@ -87,7 +87,7 @@ class App:
         self.transition_duration = 0.5  # 0.7 seconds for each fade
         self.next_level = None
         self.current_level = 0
-        self.max_levels = 4  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
+        self.max_levels = 1  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
         
         # Fall detection threshold
         self.fall_threshold = 600  # If player falls below this Y position, restart
@@ -102,6 +102,11 @@ class App:
         self.game_start_time = 0
         self.game_running = False
         self.isFirstInput = True
+        self.final_time = 0  # Store completion time for end screen
+        self.end_screen_bg = None  # Store frozen game state for end screen background
+        self.capture_next_frame = False  # Flag to capture screen after rendering
+        self.end_screen_transition_timer = 0.0  # Timer for end screen transition
+        self.end_screen_transition_duration = 1.5  # Duration of transition in seconds
 
         #menu loading
         self.prompt = self.large_font.render("Press ENTER to start", True, (255, 255, 255))
@@ -219,6 +224,72 @@ class App:
         self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 1.55 - self.prompt.get_height() // 2))
         self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 1.8 - self.logo_text.get_height() // 2))        
         self.screen.blit(self.logo, (self.screen.get_width() // 2 - self.logo.get_width() // 2, self.screen.get_height() // 3.5 - self.logo.get_height() // 2))
+    
+    def end_screen(self):
+        """Draw the end screen with completion time and restart option"""
+        # Paint the backdrop as background
+        self.screen.blit(pygame.transform.scale(self.assets['backdrop'], self.screen.get_size()), (0, 0))
+        
+        # Update transition timer
+        self.end_screen_transition_timer += self.dt / 60.0
+        
+        # Calculate transition progress (0 to 1)
+        transition_progress = min(self.end_screen_transition_timer / self.end_screen_transition_duration, 1.0)
+        
+        # Add progressive overlay for better text readability
+        overlay_alpha = int(transition_progress * 80)  # Fade in overlay
+        if overlay_alpha > 0:
+            overlay = pygame.Surface((self.screen.get_width(), self.screen.get_height()))
+            overlay.fill((0, 0, 0))
+            overlay.set_alpha(overlay_alpha)
+            self.screen.blit(overlay, (0, 0))
+        
+        # Only show text after some transition progress
+        if transition_progress > 0.2:
+            text_alpha = min((transition_progress - 0.2) / 0.8, 1.0)  # Fade in text
+            text_alpha_value = int(text_alpha * 255)
+            
+            # Title
+            title_text = self.large_font.render("Game Complete!", True, (0, 255, 0))
+            title_text.set_alpha(text_alpha_value)
+            title_x = (self.screen.get_width() - title_text.get_width()) // 2
+            self.screen.blit(title_text, (title_x, self.screen.get_height() // 4))
+            
+            # Final time display
+            minutes = int(self.final_time // 60)
+            seconds = int(self.final_time % 60)
+            millis = int((self.final_time % 1) * 1000)
+            time_text = f"Final Time: {minutes:02d}:{seconds:02d}:{millis:02d}"
+            time_surface = self.large_font.render(time_text, True, (255, 255, 255))
+            time_surface.set_alpha(text_alpha_value)
+            time_x = (self.screen.get_width() - time_surface.get_width()) // 2
+            self.screen.blit(time_surface, (time_x, self.screen.get_height() // 2))
+            
+            # Restart instruction (appears after some delay)
+            if transition_progress > 0.6:
+                restart_alpha = min((transition_progress - 0.6) / 0.4, 1.0)
+                restart_alpha_value = int(restart_alpha * 255)
+                restart_text = self.large_font.render("Press ENTER to restart", True, (255, 255, 255))
+                restart_text.set_alpha(restart_alpha_value)
+                restart_x = (self.screen.get_width() - restart_text.get_width()) // 2
+                self.screen.blit(restart_text, (restart_x, self.screen.get_height() // 1.5))
+            if transition_progress > 0.7:
+                restart_alpha = min((transition_progress - 0.7) / 0.3, 1.0)
+                restart_alpha_value = int(restart_alpha * 255)
+                restart_text = self.large_font.render("Press ENTER to restart", True, (255, 255, 255))
+                restart_text.set_alpha(restart_alpha_value)
+                restart_x = (self.screen.get_width() - restart_text.get_width()) // 2
+                self.screen.blit(restart_text, (restart_x, self.screen.get_height() // 1.5))
+                restart_text.set_alpha(restart_alpha_value)
+                restart_x = (self.screen.get_width() - restart_text.get_width()) // 2
+                self.screen.blit(restart_text, (restart_x, self.screen.get_height() // 1.5))
+    
+
+    
+    def capture_game_screen(self):
+        """Capture screen for end screen (not used with backdrop approach)"""
+        # Reset transition timer for smooth end screen transition
+        self.end_screen_transition_timer = 0.0
     
     def start_level_transition(self, next_level):
         """Start the fade-out transition to a new level"""
@@ -408,6 +479,12 @@ class App:
         if self.state == "game":
             self.draw_timer()
             self.draw_level_counter()
+        
+        # Capture screen if needed (after all rendering is complete)
+        if hasattr(self, 'capture_next_frame') and self.capture_next_frame:
+            self.capture_game_screen()
+            self.capture_next_frame = False
+            self.state = "end_screen"
     
     def find_portal_position(self):
         """Find the position of the portal tile in the current level"""
@@ -492,9 +569,18 @@ class App:
         tiles_around = self.tile_map.tiles_around(player_center)
         for tile in tiles_around:
             if tile['type'] == 'portal':
-                # Player touched portal, start transition to next level
-                next_level = (self.current_level + 1) % self.max_levels
-                self.start_level_transition(next_level)
+                # Check if this is the final level
+                if self.current_level >= self.max_levels - 1:
+                    # Game completed! Store final time first
+                    if self.game_running:
+                        self.final_time = time.time() - self.game_start_time
+                        self.game_running = False
+                    # Flag to capture screen at the end of update
+                    self.capture_next_frame = True
+                else:
+                    # Player touched portal, start transition to next level
+                    next_level = self.current_level + 1
+                    self.start_level_transition(next_level)
     def check_if_first_input(self):
         """Check if this is the first input to start the game timer"""
         if self.isFirstInput:
@@ -515,7 +601,10 @@ class App:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        self.restart_game()
+                        if self.state == "end_screen":
+                            self.restart_game()
+                        else:
+                            self.restart_game()
                     if event.key == pygame.K_k:
                         self.restart_game()
                     if event.key == pygame.K_r:
@@ -555,6 +644,8 @@ class App:
             elif self.state == "game":
                 # update game
                 self.update()
+            elif self.state == "end_screen":
+                self.end_screen()
             # check if tab is focused if running through web (avoid messing up dt and stuff)
             if WEB_PLATFORM:
                 self.active = not js.document.hidden
@@ -572,7 +663,7 @@ class App:
                 pygame.display.set_caption("IDLE")
 
             await asyncio.sleep(0) # keep this for pygbag to work
-            self.clock.tick(120) # don't really need more than 60 fps
+            self.clock.tick(60) # don't really need more than 60 fps
 
 # run App() asynchronously so it works with pygbag
 async def main():
