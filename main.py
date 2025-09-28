@@ -48,7 +48,12 @@ class App:
             "sfx/portal": load_sound("sfx/portal.ogg"),
             "sfx/raining": load_sound("sfx/raining.ogg"),
             # player
-            "player/idle": load_animation("player/idle.png", [5, 8], 5)
+            "player/idle": load_animation("player/idle.png", [5, 8], 5),
+            "player/run": load_animation("player/run.png", [5, 8], 4),
+            "player/jump": load_animation("player/jump.png", [5, 8], 4),
+            "player/land": load_animation("player/land.png", [5, 8], 5),
+            # bg
+            "backdrop": load_image("tiles/background.png")
         }
 
         self.tile_map = TileMap(self)
@@ -75,8 +80,11 @@ class App:
         self.next_level = None
         self.current_level = 0
         self.max_levels = 2  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
+        
+        # Fall detection threshold
+        self.fall_threshold = 400  # If player falls below this Y position, restart
 
-        self.player = Player(self, [7, 12], [50, 10])
+        self.player = Player(self, [5, 8], [50, -10])
 
         #menu loading
         self.prompt_m_x = self.screen.get_width() // 2 - 100
@@ -181,6 +189,23 @@ class App:
         return t ** 3
     
     # put all the game stuff here
+    def restart_game(self):
+        self.current_level = 0
+        self.player.pos = pygame.Vector2(50, 10)
+        self.player.movement = pygame.Vector2(0, 0)
+        self.player.falling = 30
+        self.transition_state = "none"
+        self.transition_timer = 0.0
+        self.tile_map = TileMap(self)
+        self.tile_map.load("data/maps/0.json")
+        self.state = "game"
+
+    def reset_player_position(self):
+        """Reset only the player position without changing level"""
+        self.player.pos = pygame.Vector2(50, 10)
+        self.player.movement = pygame.Vector2(0, 0)
+        self.player.falling = 30
+
     def update(self):
         # Update transitions
         self.update_transition(self.dt / 60.0)
@@ -192,6 +217,11 @@ class App:
             
             self.player.update(self.dt, self.tile_map)
             
+            # Check if player has fallen too far (restart game)
+            if self.player.pos.y > self.fall_threshold:
+                self.reset_player_position()
+                return
+            
             # Check for portal collision
             self.check_portal_collision()
 
@@ -202,7 +232,7 @@ class App:
         self.screen_shake = max(0, self.screen_shake - 1 * self.dt)
         screen_shake_offset = (random.random() * self.screen_shake - self.screen_shake / 2, random.random() * self.screen_shake - self.screen_shake / 2)
         render_scroll = (int(self.scroll.x + screen_shake_offset[0]), int(self.scroll.y + screen_shake_offset[1]))
-        self.screen.fill((0, 0, 0))
+        self.screen.blit(pygame.transform.scale(self.assets['backdrop'], self.screen.get_size()), (0, 0))
         self.tile_map.draw(self.screen, render_scroll)
 
         self.player.draw(self.screen, render_scroll)
@@ -235,20 +265,27 @@ class App:
                     mx, my = pygame.mouse.get_pos()
                     mx //= SCALE
                     my //= SCALE
+<<<<<<< HEAD
                     if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_x <= my <= self.prompt_m_x + 100:
                         self.state = "game"
                         #INSERT RESET FUNCTION HERE
+=======
+                    if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_y <= my <= self.prompt_m_y + 100:
+                        self.restart_game()
+>>>>>>> 7b19281c5363a94ea836d05b10da583eb241229f
                 if event.type == pygame.MOUSEBUTTONDOWN and self.state == "game_over":
                     mx, my = pygame.mouse.get_pos()
                     mx //= SCALE
                     my //= SCALE
                     if self.prompt_go_x <= mx <= self.prompt_go_x + 200 and self.prompt_go_y <= my <= self.prompt_go_y + 100:
-                        self.state = "game"
-                        #INSERT RESET FUNCTION HERE
+                        self.restart_game()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN and self.state in ["menu", "game_over"]:
-                        self.state = "game"
-                        #INSERT RESET FUNCTION HERE
+                    if event.key == pygame.K_RETURN:
+                        self.restart_game()
+                    if event.key == pygame.K_k:
+                        self.restart_game()
+                    if event.key == pygame.K_r:
+                        self.reset_player_position()
                     if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
@@ -290,7 +327,7 @@ class App:
                 else:
                     pygame.display.set_caption(f"FPS: {self.clock.get_fps() :.1f} Display: {self.screen.get_width()} * {self.screen.get_height()}")
                 # scale display
-                self.display.blit(pygame.transform.scale2x(self.screen), (0, 0))
+                self.display.blit(pygame.transform.scale_by(self.screen, SCALE), (0, 0))
                 pygame.display.flip()
             else:
                 pygame.display.set_caption("IDLE")
