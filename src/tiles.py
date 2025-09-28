@@ -4,11 +4,12 @@ from .util import read_json
 TILE_SIZE = 8
 # offsets set
 OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1)}
-PHYSICS_TILES = {'stone', 'cloud', 'grass'}
+PHYSICS_TILES = {'rock', 'cloud', 'grass'}
+HOLLOW_TILES = {'portal'}
 # tiles that can be destroyed after being walked on
 DESTRUCTIBLE_TILES = {'cloud'}
 # time in seconds before tile destroys after being walked on
-DESTRUCTION_TIME = 0.1
+DESTRUCTION_TIME = 0.4
 
 AUTO_TILE_TYPES = {'grass', 'cloud'}
 AUTO_TILE_MAP = {'0011': 1, '1011': 2, '1001': 3, '0001': 4, '0111': 5, '1111': 6, '1101': 7, '0101': 8,
@@ -17,7 +18,7 @@ AUTO_TILE_MAP = {'0011': 1, '1011': 2, '1001': 3, '0001': 4, '0111': 5, '1111': 
 class TileMap:
     def __init__(self, app):
         self.app = app
-        self.tile_map = {}
+        self.tile_map = {} 
         self.off_grid = []
         self.tile_size = TILE_SIZE
 
@@ -78,6 +79,59 @@ class TileMap:
         if tile_loc in self.tile_map:
             if self.tile_map[tile_loc]['type'] in PHYSICS_TILES:
                 return self.tile_map[tile_loc]
+    
+    def get_adjacent_tiles(self, tile_loc):
+        """Get all adjacent tiles for a given tile location"""
+        adjacent_tiles = []
+        # Parse the tile location
+        x, y = map(int, tile_loc.split(';'))
+        
+        # Check all surrounding blocks using OFFSETS
+        for dx, dy in OFFSETS:
+            adj_loc = f"{x + dx};{y + dy}"
+            if adj_loc in self.tile_map:
+                adjacent_tiles.append(adj_loc)
+        
+        return adjacent_tiles
+    
+    def get_3x3_destruction_area(self, tile_loc):
+        """Get a 3x3 area of tiles centered 1 block higher than the given tile location"""
+        destruction_tiles = []
+        # Parse the tile location
+        x, y = map(int, tile_loc.split(';'))
+        
+        # Create 3x3 grid centered 1 block higher (y-1)
+        center_x, center_y = x, y - 1
+        
+        # Generate 3x3 pattern around the center point
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                target_loc = f"{center_x + dx};{center_y + dy}"
+                if target_loc in self.tile_map:
+                    destruction_tiles.append(target_loc)
+        
+        return destruction_tiles
+    
+    def mark_tile_for_destruction(self, tile_loc, delay=0.0):
+        """Mark a tile for destruction with optional delay"""
+        if tile_loc in self.tile_map:
+            tile = self.tile_map[tile_loc]
+            if tile['type'] in DESTRUCTIBLE_TILES and not tile['walked_on']:
+                tile['walked_on'] = True
+                tile['destruction_timer'] = DESTRUCTION_TIME + delay
+    
+    def mark_tile_walked_on(self, pos):
+        """Mark tiles in a 3x3 pattern centered 1 block higher than the landing position"""
+        tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
+        
+        # Get the 3x3 destruction area centered 1 block higher
+        destruction_tiles = self.get_3x3_destruction_area(tile_loc)
+        
+        # Mark all tiles in the 3x3 area for destruction
+        for i, target_tile_loc in enumerate(destruction_tiles):
+            # Add a small stagger delay for visual effect (0.0 to 0.4 seconds)
+            delay = i * 0.05  # Each tile destroys 0.05 seconds after the previous
+            self.mark_tile_for_destruction(target_tile_loc, delay)
     
     def get_3x3_destruction_area(self, tile_loc):
         """Get a 3x3 area of tiles centered 1 block higher than the given tile location"""
@@ -148,10 +202,10 @@ class TileMap:
         
         # Cascade destruction to adjacent tiles (optional chain reaction)
         # Uncomment the lines below if you want chain reactions
-        # for tile_loc in tiles_to_cascade:
-        #     adjacent_tiles = self.get_adjacent_tiles(tile_loc)
-        #     for adj_tile_loc in adjacent_tiles:
-        #         self.mark_tile_for_destruction(adj_tile_loc, 0.3)  # Chain reaction delay
+        for tile_loc in tiles_to_cascade:
+            adjacent_tiles = self.get_adjacent_tiles(tile_loc)
+            for adj_tile_loc in adjacent_tiles:
+                self.mark_tile_for_destruction(adj_tile_loc, 0.0)  # Chain reaction delay
     
     def physics_rects_around(self, pos):
         rects = []

@@ -14,6 +14,18 @@ def load_images(path):
         imgs.append(load_image(path + '/' + img_path))
     return imgs
 
+def load_animation(path, frame_dimensions, length):
+    img = load_image(path)
+    img_surf = pygame.Surface(frame_dimensions)
+    anim = []
+    for x in range(length):
+        img_surf.fill((0, 0, 0))
+        img_surf.blit(img, (-x * frame_dimensions[0], 0))
+        img_surf.convert()
+        img_surf.set_colorkey((0, 0, 0))
+        anim.append(img_surf)
+    return anim
+
 def load_sound(path) -> pygame.mixer.Sound:
     return pygame.mixer.Sound(BASE_AUDIO_PATH + path)
 

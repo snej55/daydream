@@ -13,27 +13,85 @@ class Player:
         self.collisions = {'up': False, 'down': False}
 
         self.movement = pygame.Vector2(0, 0)
+        
+        # More realistic physics constants
+        self.acceleration = 0.9     # How fast we accelerate when input is pressed
+        self.deceleration = 0.50    # How fast we decelerate when no input (stronger than friction)
+        self.air_acceleration = 0.25  # Reduced acceleration when in air
+        self.air_deceleration = 0.98  # Slower deceleration in air
+        self.friction = 0.8          # Ground friction (applied always)
+        self.air_resistance = 0.95   # Air resistance (applied always in air) 
+        self.max_speed = 3        # Maximum horizontal speed
+        self.gravity = 0.25          # Gravity strength
+        self.max_fall_speed = 6      # Terminal velocity
+        self.jump_power = -4.5      # Jump strength (negative = upward)
+        self.decel_threshold = 0.1   # Speed below which we stop completely
 
     def get_rect(self):
         return pygame.Rect(self.pos.x, self.pos.y, self.dimensions.x, self.dimensions.y)
 
     def update(self, dt, tile_map):
+        # Check if player is on ground (for different physics)
+        on_ground = self.falling < 5
+        
+        # Horizontal movement with enhanced acceleration/deceleration
+        target_speed = 0
+        input_pressed = False
+        
         if self.controls['left']:
-            self.movement.x -= 1.5 * dt
-        if self.controls['right']:
-            self.movement.x += 1.5 * dt
-
+            target_speed = -self.max_speed
+            input_pressed = True
+        elif self.controls['right']:
+            target_speed = self.max_speed
+            input_pressed = True
+        
+        # Apply acceleration or deceleration
+        speed_diff = target_speed - self.movement.x
+        
+        if on_ground:
+            if input_pressed and abs(speed_diff) > 0.1:
+                # Accelerating toward target speed
+                self.movement.x += speed_diff * self.acceleration * dt
+            elif not input_pressed:
+                # No input - apply strong deceleration
+                self.movement.x *= pow(self.deceleration, dt)
+                # Stop completely if speed is very low
+                if abs(self.movement.x) < self.decel_threshold:
+                    self.movement.x = 0
+            
+            # Always apply base friction
+            self.movement.x *= pow(self.friction, dt)
+        else:
+            if input_pressed and abs(speed_diff) > 0.1:
+                # Air acceleration (reduced control)
+                self.movement.x += speed_diff * self.air_acceleration * dt
+            elif not input_pressed:
+                # No input in air - gentle deceleration
+                self.movement.x *= pow(self.air_deceleration, dt)
+            
+            # Always apply air resistance
+            self.movement.x *= pow(self.air_resistance, dt)
+        
+        # Clamp horizontal speed to max
+        if abs(self.movement.x) > self.max_speed:
+            self.movement.x = self.max_speed if self.movement.x > 0 else -self.max_speed
+        
+        # Vertical movement with realistic gravity
         self.collisions = {'up': False, 'down': False}
-        self.movement.x += (self.movement.x * 0.6 - self.movement.x) * dt
-        self.movement.y = min(8, self.movement.y + 0.2 * dt)
+        
+        # Apply gravity
+        self.movement.y += self.gravity * dt
+        
+        # Clamp fall speed to terminal velocity
+        if self.movement.y > self.max_fall_speed:
+            self.movement.y = self.max_fall_speed
 
         self.falling += dt
 
-        if self.controls['up']:
-            print("hi")
-            if self.falling < 5:
-                self.movement.y = -3
-                self.falling = 30
+        # Jumping with improved feel
+        if self.controls['up'] and on_ground:
+            self.movement.y = self.jump_power
+            self.falling = 30
 
         # frame movement
         fm = pygame.Vector2(self.movement.x * dt, self.movement.y * dt)
