@@ -92,11 +92,12 @@ class App:
         #menu loading
         self.prompt = self.large_font.render("Press ENTER to start", True, (255, 255, 255))
         self.logo_text = self.large_font.render("System of a Cloud", True, (255, 255, 255))
-
+        self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
     def menu(self):
         self.screen.fill((0, 0, 0))
-        self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 2 - self.prompt.get_height() // 2))
-        self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 10 - self.logo_text.get_height() // 2))        
+        self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 1.55 - self.prompt.get_height() // 2))
+        self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 1.8 - self.logo_text.get_height() // 2))        
+        self.screen.blit(self.logo, (self.screen.get_width() // 2 - self.logo.get_width() // 2, self.screen.get_height() // 3.5 - self.logo.get_height() // 2))
     def start_level_transition(self, next_level):
         """Start the fade-out transition to a new level"""
         if self.transition_state == "none":
