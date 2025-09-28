@@ -5,7 +5,7 @@ BASE_AUDIO_PATH = 'data/sound/'
 
 def load_image(path) -> pygame.Surface:
     surf = pygame.image.load(BASE_IMG_PATH + path).convert()
-    surf.set_colorkey((0, 0, 0))
+    surf.set_colorkey((0, 0, 0, 0))
     return surf
 
 def load_images(path):
@@ -22,7 +22,7 @@ def load_animation(path, frame_dimensions, length):
         img_surf.fill((0, 0, 0))
         img_surf.blit(img, (-x * frame_dimensions[0], 0))
         img_surf.convert()
-        img_surf.set_colorkey((0, 0, 0))
+        img_surf.set_colorkey((0, 0, 0, 0))
         anim.append(img_surf)
     return anim
 
@@ -39,7 +39,7 @@ def load_tile_imgs(path, tile_size):
             img_surf.fill((0, 0, 0))
             img_surf.blit(img, (-x * tile_size, -y * tile_size))
             img_surf.convert()
-            img_surf.set_colorkey((0, 0, 0))
+            img_surf.set_colorkey((0, 0, 0, 0))
             tiles.append(img_surf.copy())
     return tiles
 

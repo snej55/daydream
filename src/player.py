@@ -39,8 +39,8 @@ class Player:
         self.movement = pygame.Vector2(0, 0)
         
         # More realistic physics constants
-        self.acceleration = 0.9     # How fast we accelerate when input is pressed
-        self.deceleration = 0.50    # How fast we decelerate when no input (stronger than friction)
+        self.acceleration = 0.6     # How fast we accelerate when input is pressed
+        self.deceleration = 0.1    # How fast we decelerate when no input (stronger than friction)
         self.air_acceleration = 0.25  # Reduced acceleration when in air
         self.air_deceleration = 0.98  # Slower deceleration in air
         self.friction = 0.8          # Ground friction (applied always)
@@ -48,7 +48,7 @@ class Player:
         self.max_speed = 3        # Maximum horizontal speed
         self.gravity = 0.25          # Gravity strength
         self.max_fall_speed = 6      # Terminal velocity
-        self.jump_power = -4.5      # Jump strength (negative = upward)
+        self.jump_power = -4     # Jump strength (negative = upward)
         self.decel_threshold = 0.1   # Speed below which we stop completely
         # self.app.assets['sfx/raining'].play()
 

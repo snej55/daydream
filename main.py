@@ -90,8 +90,8 @@ class App:
 
         #menu loading
         self.prompt_m_x = self.screen.get_width() // 2 - 100
-        self.prompt_m_y = self.screen.get_height() // 2 - 50
-        self.prompt_m = self.large_font.render("Click Here or ENTER", True, (255, 255, 255))
+        self.prompt_m = self.large_font.render("Click here to play", True, (255, 255, 255))
+        self.prompt_m_2 = self.large_font.render("Press ENTER to view controls", True, (255, 255, 255))
 
         #game over loading
         self.prompt_go_x = self.screen.get_width() // 2 - 100
@@ -99,11 +99,12 @@ class App:
         self.game_over_messages = ["Did you get that on camera?", "I'm not mad, just dissapointed", "Caught in 4K", "You did not try your best"]
         self.message = self.game_over_messages[self.game_over_message % len(self.game_over_messages)]
         self.prompt_go = self.large_font.render(f"{self.message}", True, (255, 255, 255))
-        self.prompt_go_2 = self.large_font.render("Click Here or ENTER", True, (255, 255, 255))
+        self.prompt_go_2 = self.large_font.render("Click here to play", True, (255, 255, 255))
 
     def menu(self):
-        pygame.draw.rect(self.screen, (100, 0, 0), [self.prompt_m_x, self.prompt_m_y, 200, 100])
-        self.screen.blit(self.prompt_m, ((self.prompt_m_x - self.prompt_m.get_width() // 2 + 100), (self.prompt_m_y + 50 - self.prompt_m.get_height() // 2)))
+        pygame.draw.rect(self.screen, (100, 0, 0), [self.prompt_m_x, 0, 200, 100])
+        self.screen.blit(self.prompt_m, ((self.prompt_m_x - self.prompt_m.get_width() // 2), (50 - self.prompt_m_2.get_height())))
+        self.screen.blit(self.prompt_m_2, ((self.prompt_m_x - self.prompt_m_2.get_width()) // 2, 200))
 
     def game_over(self):
         self.screen.fill((0, 0, 0))
