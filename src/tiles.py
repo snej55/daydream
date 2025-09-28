@@ -199,7 +199,7 @@ class TileMap:
             if tile_loc in self.tile_map:  # Safety check
                 del self.tile_map[tile_loc]
                 self.auto_tile()
-                self.app.screen_shake = max(self.app.screen_shake, 6)
+                self.app.screen_shake = max(self.app.screen_shake, 4)
                 tile_pos = [int(coord) * 8 for coord in tile_loc.split(';')]
                 for _ in range(random.randint(10, 20)):
                     speed = random.random() + 2
@@ -207,6 +207,10 @@ class TileMap:
                     self.app.kickup.append([[tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], [math.cos(angle) * speed, math.sin(angle) * speed], random.random() + 9, random.choice(self.app.kickup_palette)])
                 for _ in range(random.randint(10, 20)):
                     self.app.sparks.append(Spark([tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], random.random() * 2 * math.pi, random.random() * 1.5 + 0.5, (255, 255, 255)))
+                for _ in range(random.randint(30, 50)):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random() + 0.5
+                    self.app.smoke.append([[tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], [math.cos(angle) * speed, math.sin(angle) * speed], 1, random.randint(200, 255), 0, random.randint(0, 360), (200, 200, 255)])
 
         # Cascade destruction to adjacent tiles (optional chain reaction)
         # Uncomment the lines below if you want chain reactions
