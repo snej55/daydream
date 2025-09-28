@@ -10,6 +10,7 @@ class Player:
         self.falling = 30
         self.jumping = 30
         self.controls = {'up': False, 'down': False, 'left': False, 'right': False}
+        self.collisions = {'up': False, 'down': False}
 
         self.movement = pygame.Vector2(0, 0)
 
@@ -22,8 +23,9 @@ class Player:
         if self.controls['right']:
             self.movement.x += 1.5 * dt
 
-        self.movement.x += (self.movement.x * 0.7 - self.movement.x) * dt
-        self.movement.y += 0.1 * dt
+        self.collisions = {'up': False, 'down': False}
+        self.movement.x += (self.movement.x * 0.6 - self.movement.x) * dt
+        self.movement.y += 0.2 * dt
 
         self.falling += dt
 
@@ -37,7 +39,7 @@ class Player:
         
         self.pos.x += fm.x
         r = self.get_rect()
-        for rect in tile_map.physics_rects_around(self.pos):
+        for rect in tile_map.physics_rects_around(r.center):
             if r.colliderect(rect):
                 if fm.x > 0:
                     r.right = rect.left
@@ -46,22 +48,18 @@ class Player:
                 self.pos.x = r.x
                 self.movement.x = 0
 
-        # repeat for y-axis
         self.pos.y += fm.y
         r = self.get_rect()
-        ground_collision = False
-        for rect in tile_map.physics_rects_around(self.pos):
+        for rect in tile_map.physics_rects_around(r.center):
             if r.colliderect(rect):
-                if fm.y > 0:
+                if fm.y >= 0:
                     r.bottom = rect.top
                     self.falling = 0
-                    ground_collision = True
-                    # Mark the tile as walked on when player lands on it
-                    tile_map.mark_tile_walked_on((rect.centerx, rect.centery))
-                if fm.y < 0:
+                elif fm.y < 0:
                     r.top = rect.bottom
-                self.pos.y = r.y
                 self.movement.y = 0
+                self.collisions['up'] = True
+                self.pos.y = r.y
 
     def draw(self, surf, scroll):
         pygame.draw.rect(surf, (255, 0, 0), self.get_rect())
