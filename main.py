@@ -39,7 +39,7 @@ class App:
         # sfx & image assets
         self.assets = {
             # tiles
-            "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
+            "tiles/grass": load_tile_imgs("tiles/cloud_tuft.png", 8),
             "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
             "tiles/rock": load_tile_imgs("tiles/rock.png", 8),
             "tiles/moss": load_tile_imgs("tiles/moss.png", 8),
@@ -59,11 +59,10 @@ class App:
             "player/land": load_animation("player/land.png", [5, 8], 5),
             # bg
             "backdrop": load_image("tiles/background.png"),
-            "tiles/large_decor": load_animation("tiles/large_decor.png", [50, 50], 6),
+            "tiles/large_decor": load_animation("tiles/Cloud_large_decor.png", [50, 50], 6),
             "clouds_single": load_image("tiles/clouds_single.png")
         }
         self.kickup_palette = load_palette(self.assets["tiles/cloud"][0])
-        self.smoke_palette = load_palette(self.assets["tiles/rock"][0])
 
         self.tile_map = TileMap(self)
         self.tile_map.load(MAP)
@@ -124,7 +123,7 @@ class App:
         smoke[0][1] += smoke[1][1] * self.dt
         smoke[1][0] += (smoke[1][0] * 0.98 - smoke[1][0]) * self.dt
         smoke[1][1] += (smoke[1][1] * 0.98 - smoke[1][1]) * self.dt
-        smoke[4] += 5 * self.dt
+        smoke[4] += (smoke[5] - smoke[4]) / 2 * self.dt
         smoke[3] = max(0, smoke[3] - SMOKE_DELAY * self.dt)
         smoke[2] += 0.2 * self.dt
         surf = pygame.transform.rotate(self.alpha_surf([smoke[2], smoke[2]], smoke[3], smoke[6]), smoke[4])
@@ -150,8 +149,8 @@ class App:
             if p[2] <= 0:
                 self.kickup.pop(i)
             else:
-                color = pygame.Color(p[3][0], p[3][1], p[3][2], math.floor(p[2] / 10 * 255))
-                self.screen.set_at((int(p[0][0] - render_scroll[0]), int(p[0][1] - render_scroll[1])), color)
+                color = pygame.Color(p[3][0], p[3][1], p[3][2], int(p[2] / 10 * 255))
+                self.screen.set_at((p[0][0] - render_scroll[0], p[0][1] - render_scroll[1]), color)
 
     def update_sparks(self, render_scroll):
         for i, spark in sorted(enumerate(self.sparks), reverse=True):
