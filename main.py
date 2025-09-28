@@ -40,8 +40,8 @@ class App:
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
             "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
             "tiles/rock": load_tile_imgs("tiles/rock.png", 8),
+            "tiles/moss": load_tile_imgs("tiles/moss.png", 8),
             "tiles/portal": load_animation("tiles/portal_spritesheet.png", (8, 16), 4),
-            
             
             # sfx
             "sfx/jump": load_sound("sfx/jump.ogg"),
@@ -55,7 +55,8 @@ class App:
             "player/jump": load_animation("player/jump.png", [5, 8], 4),
             "player/land": load_animation("player/land.png", [5, 8], 5),
             # bg
-            "backdrop": load_image("tiles/background.png")
+            "backdrop": load_image("tiles/background.png"),
+            "tiles/large_decor": load_animation("tiles/large_decor.png", [50, 50], 6)
         }
 
         self.tile_map = TileMap(self)
@@ -230,6 +231,84 @@ class App:
         
         # Draw transition overlay
         self.draw_transition_overlay()
+        
+        # Draw portal distance progress bar (only during gameplay)
+        if self.state == "game" and self.transition_state == "none":
+            self.draw_portal_progress_bar()
+    
+    def find_portal_position(self):
+        """Find the position of the portal tile in the current level"""
+        for tile_loc, tile in self.tile_map.tile_map.items():
+            if tile['type'] == 'portal':
+                # Return the center position of the portal tile
+                tile_x = tile['pos'][0] * self.tile_map.tile_size + self.tile_map.tile_size // 2
+                tile_y = tile['pos'][1] * self.tile_map.tile_size + self.tile_map.tile_size // 2
+                return pygame.Vector2(tile_x, tile_y)
+        return None
+    
+    def draw_portal_progress_bar(self):
+        """Draw a progress bar showing distance to portal"""
+        portal_pos = self.find_portal_position()
+        if portal_pos is None:
+            return
+        
+
+        player_center = pygame.Vector2(self.player.pos.x + self.player.dimensions.x // 2,
+                                     self.player.pos.y + self.player.dimensions.y // 2)
+        distance = player_center.distance_to(portal_pos)
+        
+        max_distance = 1440.0 
+        
+        progress = max(0.0, min(1.0, 1.0 - (distance / max_distance)))
+        
+        # Progress bar dimensions - made smaller
+        bar_width = 250  # Reduced from 150
+        bar_height = 3  # Reduced from 8
+        bar_x = (self.screen.get_width() - bar_width) // 2
+        bar_y = 8        # Moved up slightly
+        
+        # Draw background bar
+        pygame.draw.rect(self.screen, (50, 50, 50), (bar_x - 1, bar_y - 1, bar_width + 2, bar_height + 2))
+        pygame.draw.rect(self.screen, (100, 100, 100), (bar_x, bar_y, bar_width, bar_height))
+        
+        # Draw progress bar fill
+        fill_width = int(bar_width * progress)
+        # if progress > 0.7:
+        #     # Close to portal - green
+        #     color = (0, 255, 0)
+        # elif progress > 0.3:
+        #     # Medium distance - yellow
+        #     color = (154, 167, 178)
+        # else:
+        #     # Far from portal - red
+        #     color = (242, 167, 178)
+        color = (242, 167, 178)
+        
+        if fill_width > 0:
+            pygame.draw.rect(self.screen, color, (bar_x, bar_y, fill_width, bar_height))
+        
+        # Draw portal icon at the end (right side) of the progress bar using actual portal image
+        portal_icon_x = bar_x + bar_width + 3
+        portal_icon_y = bar_y - 3  # Adjust for image height
+        if "tiles/portal" in self.assets and len(self.assets["tiles/portal"]) > 0:
+            portal_img = self.assets["tiles/portal"][0]  # Get first frame of portal animation
+            # Scale down the portal image to fit nicely
+            portal_scaled = pygame.transform.scale(portal_img, (8, 8))
+            self.screen.blit(portal_scaled, (portal_icon_x, portal_icon_y))
+        
+        # Draw player icon that moves with the progress using actual player image
+        player_progress_x = bar_x + int(bar_width * progress) - 4  # Center the player icon on progress
+        player_icon_y = bar_y - 3  # Adjust for image height
+        if "player/idle" in self.assets and len(self.assets["player/idle"]) > 0:
+            player_img = self.assets["player/idle"][0]  # Get first frame of player animation
+            # Scale down the player image to fit nicely
+            player_scaled = pygame.transform.scale(player_img, (8, 8))
+            self.screen.blit(player_scaled, (player_progress_x, player_icon_y))
+        
+        # # Draw label text - smaller font would be nice but using existing
+        # label_text = self.large_font.render("Portal", True, (255, 255, 255))  # Shortened text
+        # label_x = (self.screen.get_width() - label_text.get_width()) // 2
+        # self.screen.blit(label_text, (label_x, bar_y - 12))  # Adjusted spacing
     
     def check_portal_collision(self):
         """Check if player is colliding with a portal tile"""
