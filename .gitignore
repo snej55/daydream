@@ -2,6 +2,8 @@
 *.pyc
 *.egg-info
 *-pygbag.???
+.DS_store
+DS_store
 /build
 /dist
 /.venv

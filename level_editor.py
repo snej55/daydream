@@ -6,7 +6,7 @@ SCR_HEIGHT = 1200
 SCALE = 3 # screen scaling
 
 # tile size
-TILE_SIZE = 12
+TILE_SIZE = 8
 # world is split into chunks (size = relative tilesize, actual pixel size = tile_size * chunk_size)
 CHUNK_SIZE = 9
 # level width (relative chunk size, "")
@@ -51,7 +51,7 @@ class Editor:
 
         # assets
         self.assets = {
-            "grass": self.load_tileset(pygame.image.load("data/images/grass.png").convert())
+            "grass": self.load_tileset(pygame.image.load("data/images/tiles/grass.png").convert())
         }
 
         # set colorkeys
