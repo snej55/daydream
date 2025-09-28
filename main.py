@@ -18,6 +18,7 @@ if WEB_PLATFORM:
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
 
+# annelies
 class App:
     def __init__(self):
         # no need for separate scaling, pygbag scales canvas automatically
