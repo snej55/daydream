@@ -16,7 +16,7 @@ if WEB_PLATFORM:
     # keep pixelated look for pygbag
     platform.window.canvas.style.imageRendering = "pixelated"
 
-WIDTH, HEIGHT = 640, 480
+WIDTH, HEIGHT = 320, 240
 SCALE = 2
 
 MAP = "data/maps/0.json"
@@ -53,13 +53,11 @@ class App:
 
         self.state = "game"
     
-
     def menu(self):
         pass
 
     # put all the game stuff here
     def update(self):
-
         render_scroll = (int(self.scroll.x), int(self.scroll.y))
 
         self.screen.fill((0, 0, 0))

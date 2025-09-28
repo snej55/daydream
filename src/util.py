@@ -15,7 +15,6 @@ def load_images(path):
     return imgs
 
 def load_sound(path) -> pygame.mixer.Sound:
-    path = 'data/sound/sfx/' + path
     return pygame.mixer.Sound(BASE_AUDIO_PATH + path)
 
 def load_tile_imgs(path, tile_size):
