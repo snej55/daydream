@@ -5,6 +5,7 @@ TILE_SIZE = 8
 # offsets set
 OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1)}
 PHYSICS_TILES = {'rock', 'cloud', 'grass'}
+HOLLOW_TILES = {'portal'}
 # tiles that can be destroyed after being walked on
 DESTRUCTIBLE_TILES = {'cloud'}
 # time in seconds before tile destroys after being walked on
