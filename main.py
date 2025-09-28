@@ -93,7 +93,7 @@ class App:
 
     def menu(self):
         self.screen.fill((0, 0, 0))
-        self.screen.blit(self.prompt, ((WIDTH - self.prompt.get_width()) // 2 + , 0))
+        self.screen.blit(self.prompt, ((WIDTH - self.prompt.get_width()) // 2, 0))
 
     def start_level_transition(self, next_level):
         """Start the fade-out transition to a new level"""
