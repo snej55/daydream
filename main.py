@@ -17,8 +17,6 @@ if WEB_PLATFORM:
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
 
-pygame.mixer.music.load("data/audio/07 Bright Morningstar.mp3")
-
 class App:
     def __init__(self):
         # no need for separate scaling, pygbag scales canvas automatically
