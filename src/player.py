@@ -26,6 +26,7 @@ class Player:
         self.max_fall_speed = 6      # Terminal velocity
         self.jump_power = -4.5      # Jump strength (negative = upward)
         self.decel_threshold = 0.1   # Speed below which we stop completely
+        # self.app.assets['sfx/raining'].play()
 
     def get_rect(self):
         return pygame.Rect(self.pos.x, self.pos.y, self.dimensions.x, self.dimensions.y)

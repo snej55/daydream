@@ -192,7 +192,7 @@ class TileMap:
                     # Play explosion sound when tile is destroyed
                     if 'sfx/explosion' in self.app.assets:
                         pass
-                        # self.app.assets['sfx/explosion'].play()
+                        self.app.assets['sfx/explosion'].play()
         
         # Remove destroyed tiles
         for tile_loc in tiles_to_remove:
@@ -202,10 +202,10 @@ class TileMap:
         
         # Cascade destruction to adjacent tiles (optional chain reaction)
         # Uncomment the lines below if you want chain reactions
-        for tile_loc in tiles_to_cascade:
-            adjacent_tiles = self.get_adjacent_tiles(tile_loc)
-            for adj_tile_loc in adjacent_tiles:
-                self.mark_tile_for_destruction(adj_tile_loc, 0.0)  # Chain reaction delay
+        # for tile_loc in tiles_to_cascade:
+        #     adjacent_tiles = self.get_adjacent_tiles(tile_loc)
+        #     for adj_tile_loc in adjacent_tiles:
+        #         self.mark_tile_for_destruction(adj_tile_loc, 0.0)  # Chain reaction delay
     
     def physics_rects_around(self, pos):
         rects = []
