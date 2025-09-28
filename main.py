@@ -1,6 +1,6 @@
 import asyncio, pygame, random, time, math, sys, platform
 
-from src.util import load_image, load_sound, load_tile_imgs, load_animation
+from src.util import load_image, load_sound, load_tile_imgs, load_animation, load_palette
 from src.tiles import TileMap
 from src.player import Player
 
@@ -56,8 +56,10 @@ class App:
             "player/land": load_animation("player/land.png", [5, 8], 5),
             # bg
             "backdrop": load_image("tiles/background.png"),
-            "tiles/large_decor": load_animation("tiles/large_decor.png", [50, 50], 6)
+            "tiles/large_decor": load_animation("tiles/large_decor.png", [50, 50], 6),
+            "clouds_single": load_image("tiles/clouds_single.png")
         }
+        self.kickup_palette = load_palette(self.assets["tiles/cloud"][0])
 
         self.tile_map = TileMap(self)
         self.tile_map.load(MAP)
@@ -72,7 +74,7 @@ class App:
         self.screen_shake = 0
         
         self.large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 11)
-
+        self.small_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 6)
         self.game_over_message = random.randint(0, 4)
         self.state = "menu"
         
@@ -88,15 +90,103 @@ class App:
         self.fall_threshold = 600  # If player falls below this Y position, restart
 
         self.player = Player(self, [5, 8], [50, -10])
+        
+        # Initialize floating clouds system
+        self.floating_clouds = []
+        self.init_floating_clouds()
+        
+        # Timer and level tracking
+        self.game_start_time = 0
+        self.game_running = False
+        self.isFirstInput = True
 
         #menu loading
         self.prompt = self.large_font.render("Press ENTER to start", True, (255, 255, 255))
         self.logo_text = self.large_font.render("System of a Cloud", True, (255, 255, 255))
+        self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
+        self.kickup = []
+
+    def update_kickup(self, render_scroll):
+        # particle: [pos, vel, size, color]
+        for i, p in sorted(enumerate(self.kickup), reverse=True):
+            p[0][0] += p[1][0] * self.dt
+            if self.tile_map.solid_check(p[0]):
+                p[1][0] *= -0.8
+                p[1][1] *= 0.999
+
+            p[1][1] += 0.1 * self.dt
+            p[0][1] += p[1][1] * self.dt
+            if self.tile_map.solid_check(p[0]):
+                p[1][1] *= -0.8
+                p[1][0] *= 0.999
+
+            p[2] -= 0.1 * self.dt
+            if p[2] <= 0:
+                self.kickup.pop(i)
+            else:
+                color = pygame.Color(p[3][0], p[3][1], p[3][2], p[2] / 10 * 255)
+                self.screen.set_at((p[0][0] - render_scroll[0], p[0][1] - render_scroll[1]), color)
 
     def menu(self):
         self.screen.fill((0, 0, 0))
         self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 2 - self.prompt.get_height() // 2))
         self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 10 - self.logo_text.get_height() // 2))        
+    
+    def init_floating_clouds(self):
+        """Initialize floating clouds at random positions and layers"""
+        for i in range(4):  # Create 8 floating clouds
+            cloud = {
+                'x': random.randint(0, self.screen.get_width() + 100),
+                'y': random.randint(-20, self.screen.get_height() + 50),
+                'speed': random.uniform(0.1, 0.6),  # speeeeeeeeeeeeeeeed
+                'layer': 'below',  # Only below layer
+                'alpha': random.randint(60, 90),  # Semi-transparent
+                'size': random.uniform(0.5, 1.5),  # Random size scaling
+            }
+            self.floating_clouds.append(cloud)
+    
+    def update_floating_clouds(self, dt):
+        """Update floating cloud positions"""
+        for cloud in self.floating_clouds:
+            # Move cloud from right to left
+            cloud['x'] -= cloud['speed'] * dt
+            
+            # Reset cloud position when it goes off screen
+            if cloud['x'] < -50:
+                cloud['x'] = self.screen.get_width() + random.randint(50, 150)
+                cloud['y'] = random.randint(-50, self.screen.get_height() + 50)
+                cloud['speed'] = random.uniform(0.1, 0.3)
+                cloud['alpha'] = random.randint(100, 100)
+                cloud['size'] = random.uniform(0.5, 1.5)
+    
+    def draw_floating_clouds(self, layer):
+        """Draw floating clouds for specified layer ('below' or 'above')"""
+        for cloud in self.floating_clouds:
+            if cloud['layer'] == layer:
+  
+                cloud_img = self.assets["clouds_single"].copy()
+                
+                cloud_img.set_colorkey((0, 0, 0))  # Make black pixels transparent
+                
+                if cloud['size'] != 1.0:
+                    new_size = (int(cloud_img.get_width() * cloud['size']), 
+                               int(cloud_img.get_height() * cloud['size']))
+                    cloud_img = pygame.transform.scale(cloud_img, new_size)
+                
+                cloud_img.set_alpha(cloud['alpha'])
+                
+                # Draw cloud (no scroll offset for background elements)
+                self.screen.blit(cloud_img, (int(cloud['x']), int(cloud['y'])))
+    
+    
+        self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
+
+    def menu(self):
+        self.screen.fill((0, 0, 0))
+        self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 1.55 - self.prompt.get_height() // 2))
+        self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 1.8 - self.logo_text.get_height() // 2))        
+        self.screen.blit(self.logo, (self.screen.get_width() // 2 - self.logo.get_width() // 2, self.screen.get_height() // 3.5 - self.logo.get_height() // 2))
+    
     def start_level_transition(self, next_level):
         """Start the fade-out transition to a new level"""
         if self.transition_state == "none":
@@ -116,7 +206,7 @@ class App:
         
         if self.transition_state == "fade_out":
             if self.transition_timer >= self.transition_duration:
-                # Fade out complete, load new level and start fade in
+                # Fade out complete, load new level dand start fade in
                 self.load_level(self.next_level)
                 self.transition_state = "fade_in"
                 self.transition_timer = 0.0
@@ -186,12 +276,45 @@ class App:
         self.tile_map = TileMap(self)
         self.tile_map.load("data/maps/0.json")
         self.state = "game"
+        # Reset timer - wait for first input to start
+        self.game_running = False
+        self.game_start_time = 0
+        self.isFirstInput = True
+
 
     def reset_player_position(self):
         """Reset only the player position without changing level"""
         self.player.pos = pygame.Vector2(50, 10)
         self.player.movement = pygame.Vector2(0, 0)
         self.player.falling = 30
+    
+    def draw_timer(self):
+        """Draw game timer on top left"""
+        if self.state == "game":
+            if self.game_running:
+                elapsed_time = time.time() - self.game_start_time
+                minutes = int(elapsed_time // 60)
+                seconds = int(elapsed_time % 60)
+                millis = int((elapsed_time % 1) * 1000)
+                timer_text = f"{minutes:02d}:{seconds:02d}:{millis:02d}"
+                timer_color = (0, 255, 0)  # Green when timer is running
+            else:
+                # Show 00:00:00 when timer hasn't started yet
+                timer_text = "00:00:00"
+                timer_color = (255, 0, 0)  # Red when timer hasn't started
+            
+            timer_surface = self.small_font.render(timer_text, True, timer_color)
+            self.screen.blit(timer_surface, (8, 8))  # Top left corner
+    
+    def draw_level_counter(self):
+        """Draw level counter on top right"""
+        if self.state == "game":
+            level_text = f"Level: {self.current_level + 1}"  # Display as 1-based instead of 0-based
+            
+            level_surface = self.small_font.render(level_text, True, (255, 255, 255))
+            # Position on top right
+            x_pos = self.screen.get_width() - level_surface.get_width() - 8
+            self.screen.blit(level_surface, (x_pos, 8))
 
     def update(self):
         # Update transitions
@@ -201,6 +324,9 @@ class App:
         if self.transition_state == "none":
             # Update tile destruction timers
             self.tile_map.update(self.dt / 60.0)  # Convert dt to seconds
+            
+            # Update floating clouds
+            self.update_floating_clouds(self.dt)
             
             self.player.update(self.dt, self.tile_map)
             
@@ -225,8 +351,13 @@ class App:
         screen_shake_offset = (random.random() * self.screen_shake - self.screen_shake / 2, random.random() * self.screen_shake - self.screen_shake / 2)
         render_scroll = (int(self.scroll.x + screen_shake_offset[0]), int(self.scroll.y + screen_shake_offset[1]))
         self.screen.blit(pygame.transform.scale(self.assets['backdrop'], self.screen.get_size()), (0, 0))
+        
+        # Draw clouds below the level
+        self.draw_floating_clouds('below')
+        
         self.tile_map.draw(self.screen, render_scroll)
 
+        self.update_kickup(render_scroll)
         self.player.draw(self.screen, render_scroll)
         
         # Draw transition overlay
@@ -235,6 +366,11 @@ class App:
         # Draw portal distance progress bar (only during gameplay)
         if self.state == "game" and self.transition_state == "none":
             self.draw_portal_progress_bar()
+        
+        # Draw timer and level counter
+        if self.state == "game":
+            self.draw_timer()
+            self.draw_level_counter()
     
     def find_portal_position(self):
         """Find the position of the portal tile in the current level"""
@@ -262,7 +398,7 @@ class App:
         progress = max(0.0, min(1.0, 1.0 - (distance / max_distance)))
         
         # Progress bar dimensions - made smaller
-        bar_width = 250  # Reduced from 150
+        bar_width = 190  # Reduced from 150
         bar_height = 3  # Reduced from 8
         bar_x = (self.screen.get_width() - bar_width) // 2
         bar_y = 8        # Moved up slightly
@@ -322,6 +458,13 @@ class App:
                 # Player touched portal, start transition to next level
                 next_level = (self.current_level + 1) % self.max_levels
                 self.start_level_transition(next_level)
+    def check_if_first_input(self):
+        """Check if this is the first input to start the game timer"""
+        if self.isFirstInput:
+            self.game_start_time = time.time()
+            self.game_running = True
+            self.isFirstInput = False
+
 
     # asynchronous main loop to run in browser
     async def run(self):
@@ -341,17 +484,21 @@ class App:
                     if event.key == pygame.K_ESCAPE:
                         print('Game Quitted')
                         return 
-                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w or event.key == pygame.K_BACKSPACE:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
+                        self.check_if_first_input()
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                         self.player.controls['down'] = True
+                        self.check_if_first_input()
                     if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                         self.player.controls['left'] = True
+                        self.check_if_first_input()
                     if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.player.controls['right'] = True
+                        self.check_if_first_input()
                 elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w or event.key == pygame.K_BACKSPACE:
                         self.player.controls['up'] = False
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                         self.player.controls['down'] = False
