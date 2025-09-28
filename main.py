@@ -1,6 +1,7 @@
 import asyncio, pygame, time, math, sys, platform
 
-from src.util import load_image, load_sound
+from src.util import load_image, load_sound, load_tile_imgs
+from src.tiles import TileMap
 
 # conor was here
 pygame.init()
@@ -18,6 +19,7 @@ if WEB_PLATFORM:
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
 
+MAP = "data/maps/0.json"
 # annelies
 class App:
     def __init__(self):
@@ -33,8 +35,14 @@ class App:
 
         # sfx & image assets
         self.assets = {
-            "tiles/grass": load_image("grass.png")
+            "tiles/grass": load_tile_imgs("tiles/grass.png", 8)
         }
+
+        self.tile_map = TileMap(self)
+        self.tile_map.load(MAP)
+
+        self.scroll = pygame.Vector2(0, 0)
+        self.screen_shake = 0
     
     # put all the game stuff here
     def update(self):
@@ -42,8 +50,10 @@ class App:
         self.dt = (time.time() - self.last_time) * 60
         self.last_time = time.time()
 
+        render_scroll = (int(self.scroll.x), int(self.scroll.y))
+
         self.screen.fill((int(255 - (math.sin(time.time()) * 125 + 125)), int(math.sin(time.time()) * 125 + 125), 0))
-        self.screen.blit(self.assets["tiles/grass"], (50, 50))
+        self.tile_map.draw(self.screen, render_scroll)
 
     # asynchronous main loop to run in browser
     async def run(self):
