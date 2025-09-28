@@ -1,6 +1,7 @@
 import asyncio, pygame, time, math, sys, platform
 
-from src.util import load_image, load_sound
+from src.util import load_image, load_sound, load_tile_imgs
+from src.tiles import TileMap
 
 # conor was here
 pygame.init()
@@ -17,7 +18,10 @@ if WEB_PLATFORM:
 
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
+large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 42)
+small_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 36)
 
+MAP = "data/maps/0.json"
 # annelies
 class App:
     def __init__(self):
@@ -33,21 +37,38 @@ class App:
 
         # sfx & image assets
         self.assets = {
-            "tiles/grass": load_image("grass.png"),
-            "sfx/explosion": load_sound("sfx/explosion_trimmed.ogg")
+            "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
+            # "sfx/explosion": load_sound("sfx/explosion_trimmed.ogg")
         }
 
-        self.state = "menu"
+        self.tile_map = TileMap(self)
+        self.tile_map.load(MAP)
+
+        self.scroll = pygame.Vector2(0, 0)
+        self.screen_shake = 0
+
+        self.tile_map = TileMap(self)
+        self.tile_map.load(MAP)
+
+        self.scroll = pygame.Vector2(0, 0)
+        self.screen_shake = 0
+
+        self.state = "game"
     
 
     def menu(self):
-        pass
+        self.line_1 = large_font.render("INSERT NAME HERE", False, (255, 255, 255))
+        self.line_2 = small_font.render("ENTER to begin...", False, (255, 255, 255))
+        self.screen.blit(self.line_1, ((WIDTH - self.line_1.get_width() // 2), (HEIGHT - self.line_1.get_width() // 2)))
+        self.display.blit(self.line_2, ((WIDTH - self.line_2.get_width() // 2), (HEIGHT - self.line_2.get_width() // 2 + 75)))
 
     # put all the game stuff here
     def update(self):
 
-        self.screen.fill((int(255 - (math.sin(time.time()) * 125 + 125)), int(math.sin(time.time()) * 125 + 125), 0))
-        self.screen.blit(self.assets["tiles/grass"], (50, 50))
+        render_scroll = (int(self.scroll.x), int(self.scroll.y))
+
+        self.screen.fill((0, 0, 0))
+        self.tile_map.draw(self.screen, render_scroll)
 
     # asynchronous main loop to run in browser
     async def run(self):
@@ -57,6 +78,9 @@ class App:
                     return
                 if event.type == pygame.WINDOWRESIZED:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN and self.state == "menu":
+                        self.state = "game"
             
             # update delta time
             self.dt = (time.time() - self.last_time) * 60
@@ -64,7 +88,7 @@ class App:
 
             if self.state == "menu":
                 self.menu()
-            else:
+            elif self.state == "game":
                 # update game
                 self.update()
 
