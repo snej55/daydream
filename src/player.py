@@ -59,7 +59,6 @@ class Player:
                     ground_collision = True
                     # Mark the tile as walked on when player lands on it
                     tile_map.mark_tile_walked_on((rect.centerx, rect.centery))
-                    print(f"Player landed on tile at {rect.centerx}, {rect.centery}")
                 elif fm.y < 0:
                     r.top = rect.bottom
                 self.movement.y = 0
