@@ -18,6 +18,7 @@ if WEB_PLATFORM:
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
 
+# annelies
 class App:
     def __init__(self):
         # no need for separate scaling, pygbag scales canvas automatically
@@ -46,7 +47,6 @@ class App:
 
     # asynchronous main loop to run in browser
     async def run(self):
-        pygame.mixer.music.play(-1)
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
