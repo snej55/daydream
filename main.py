@@ -1,7 +1,7 @@
 import asyncio, pygame, time, math, sys, platform
 
 from src.util import load_image, load_sound, load_tile_imgs
-from src.tiles import TileMapy
+from src.tiles import TileMap
 
 # conor was here
 pygame.init()
@@ -44,7 +44,7 @@ class App:
         self.scroll = pygame.Vector2(0, 0)
         self.screen_shake = 0
 
-        self.state = "menu"
+        self.state = "game"
     
 
     def menu():
@@ -73,9 +73,10 @@ class App:
             self.last_time = time.time()
 
             if self.state == "menu":
-                
-            # update game
-            self.update()
+                self.menu()
+            elif self.state == "game":
+                # update game
+                self.update()
 
             # check if tab is focused if running through web (avoid messing up dt and stuff)
             if WEB_PLATFORM:
