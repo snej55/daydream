@@ -22,7 +22,15 @@ class Player:
         if self.controls['right']:
             self.movement.x += 1.5 * dt
 
+        self.movement.x += (self.movement.x * 0.7 - self.movement.x) * dt
         self.movement.y += 0.1 * dt
+
+        self.falling += dt
+
+        if self.controls['up']:
+            if self.falling < 5:
+                self.movement.y = -3
+                self.falling = 30
 
         # frame movement
         fm = pygame.Vector2(self.movement.x * dt, self.movement.y * dt)
@@ -33,7 +41,7 @@ class Player:
             if r.colliderect(rect):
                 if fm.x > 0:
                     r.right = rect.left
-                if fm.y < 0:
+                if fm.x < 0:
                     r.left = rect.right
                 self.pos.x = r.x
                 self.movement.x = 0

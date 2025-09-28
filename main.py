@@ -89,6 +89,23 @@ class App:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN and self.state == "menu":
                         self.state = "game"
+                    if event.key == pygame.K_UP:
+                        self.player.controls['up'] = True
+                    if event.key == pygame.K_DOWN:
+                        self.player.controls['down'] = True
+                    if event.key == pygame.K_LEFT:
+                        self.player.controls['left'] = True
+                    if event.key == pygame.K_RIGHT:
+                        self.player.controls['right'] = True
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_UP:
+                        self.player.controls['up'] = False
+                    if event.key == pygame.K_DOWN:
+                        self.player.controls['down'] = False
+                    if event.key == pygame.K_LEFT:
+                        self.player.controls['left'] = False
+                    if event.key == pygame.K_RIGHT:
+                        self.player.controls['right'] = False
             
             # update delta time
             self.dt = (time.time() - self.last_time) * 60

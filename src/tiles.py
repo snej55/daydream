@@ -4,7 +4,7 @@ from .util import read_json
 TILE_SIZE = 8
 # offsets set
 OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (0, 0)}
-PHYSICS_TILES = {'stone', 'cloud'}
+PHYSICS_TILES = {'stone', 'cloud', 'grass'}
 
 class TileMap:
     def __init__(self, app):
@@ -52,6 +52,7 @@ class TileMap:
         for tile in self.tiles_around(pos):
             if tile['type'] in PHYSICS_TILES:
                 rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
+        # print(rects)
         return rects
 
     def draw(self, surf, scroll):
