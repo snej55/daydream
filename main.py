@@ -265,14 +265,8 @@ class App:
                     mx, my = pygame.mouse.get_pos()
                     mx //= SCALE
                     my //= SCALE
-<<<<<<< HEAD
-                    if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_x <= my <= self.prompt_m_x + 100:
-                        self.state = "game"
-                        #INSERT RESET FUNCTION HERE
-=======
                     if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_y <= my <= self.prompt_m_y + 100:
                         self.restart_game()
->>>>>>> 7b19281c5363a94ea836d05b10da583eb241229f
                 if event.type == pygame.MOUSEBUTTONDOWN and self.state == "game_over":
                     mx, my = pygame.mouse.get_pos()
                     mx //= SCALE
