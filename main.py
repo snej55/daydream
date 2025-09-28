@@ -39,6 +39,7 @@ class App:
             # tiles
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
             "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
+            "tiles/rock": load_tile_imgs("tiles/rock.png", 8),
             "sfx/explosion": load_sound("sfx/explosion.ogg"),
             # sfx
             "sfx/jump": load_sound("sfx/jump.ogg"),
