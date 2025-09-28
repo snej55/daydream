@@ -1,6 +1,6 @@
 import asyncio, pygame, time, math, sys, platform
 
-from src.util import load_image, load_soundy
+from src.util import load_image, load_sound
 
 # conor was here
 pygame.init()
@@ -35,14 +35,12 @@ class App:
         self.assets = {
             "tiles/grass": load_image("grass.png"),
             "sfx/explosion": load_sound("sfx/explosion_trimmed.ogg")
-            
         }
 
         self.state = "menu"
     
 
-    def menu():
-        
+    def menu(self):
         pass
 
     # put all the game stuff here
@@ -65,9 +63,10 @@ class App:
             self.last_time = time.time()
 
             if self.state == "menu":
-                
-            # update game
-            self.update()
+                self.menu()
+            else:
+                # update game
+                self.update()
 
             # check if tab is focused if running through web (avoid messing up dt and stuff)
             if WEB_PLATFORM:
