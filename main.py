@@ -116,7 +116,7 @@ class App:
                     my //= SCALE
                     if self.prompt_go_x <= mx <= self.prompt_go_x + 200 and self.prompt_go_y <= my <= self.prompt_go_y + 100:
                         self.state = "game"
-                
+                if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
