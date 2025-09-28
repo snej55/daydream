@@ -3,12 +3,12 @@ from .util import read_json
 
 TILE_SIZE = 8
 # offsets set
-OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (0, 0)}
+OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1)}
 PHYSICS_TILES = {'stone', 'cloud', 'grass'}
 # tiles that can be destroyed after being walked on
 DESTRUCTIBLE_TILES = {'grass'}
 # time in seconds before tile destroys after being walked on
-DESTRUCTION_TIME = 0.00001
+DESTRUCTION_TIME = 0.5
 
 class TileMap:
     def __init__(self, app):
@@ -58,21 +58,23 @@ class TileMap:
             if self.tile_map[tile_loc]['type'] in PHYSICS_TILES:
                 return self.tile_map[tile_loc]
     
-    def get_adjacent_tiles(self, tile_loc):
-        """Get all adjacent tiles (including diagonals) for a given tile location"""
-        adjacent_tiles = []
+    def get_3x3_destruction_area(self, tile_loc):
+        """Get a 3x3 area of tiles centered 1 block higher than the given tile location"""
+        destruction_tiles = []
         # Parse the tile location
         x, y = map(int, tile_loc.split(';'))
         
-        # Check all surrounding blocks (including diagonals) using OFFSETS
-        for dx, dy in OFFSETS:
-            if (dx, dy) == (0, 0):  # Skip the center tile
-                continue
-            adj_loc = f"{x + dx};{y + dy}"
-            if adj_loc in self.tile_map:
-                adjacent_tiles.append(adj_loc)
+        # Create 3x3 grid centered 1 block higher (y-1)
+        center_x, center_y = x, y - 1
         
-        return adjacent_tiles
+        # Generate 3x3 pattern around the center point
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                target_loc = f"{center_x + dx};{center_y + dy}"
+                if target_loc in self.tile_map:
+                    destruction_tiles.append(target_loc)
+        
+        return destruction_tiles
     
     def mark_tile_for_destruction(self, tile_loc, delay=0.0):
         """Mark a tile for destruction with optional delay"""
@@ -86,20 +88,19 @@ class TileMap:
             print(f"Tile {tile_loc} not found in tile_map")
     
     def mark_tile_walked_on(self, pos):
-        """Mark a tile as walked on to start its destruction timer and mark adjacent tiles"""
+        """Mark tiles in a 3x3 pattern centered 1 block higher than the landing position"""
         tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
-        print(f"Marking tile at {tile_loc} for destruction")
+        print(f"Player landed on tile {tile_loc}, destroying 3x3 area centered 1 block higher")
         
-        # Mark the main tile for destruction
-        self.mark_tile_for_destruction(tile_loc)
+        # Get the 3x3 destruction area centered 1 block higher
+        destruction_tiles = self.get_3x3_destruction_area(tile_loc)
+        print(f"Found {len(destruction_tiles)} tiles in 3x3 destruction area")
         
-        # Mark all adjacent tiles for destruction with a small delay
-        adjacent_tiles = self.get_adjacent_tiles(tile_loc)
-        print(f"Found {len(adjacent_tiles)} adjacent tiles to destroy")
-        for adj_tile_loc in adjacent_tiles:
-            # Add a small stagger delay for visual effect
-            delay = 0.2  # 0.2 second delay for adjacent tiles
-            self.mark_tile_for_destruction(adj_tile_loc, delay)
+        # Mark all tiles in the 3x3 area for destruction
+        for i, target_tile_loc in enumerate(destruction_tiles):
+            # Add a small stagger delay for visual effect (0.0 to 0.4 seconds)
+            delay = i * 0.05  # Each tile destroys 0.05 seconds after the previous
+            self.mark_tile_for_destruction(target_tile_loc, delay)
     
     def update(self, dt):
         """Update tile destruction timers"""
