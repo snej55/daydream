@@ -90,6 +90,7 @@ class App:
                     if event.key == pygame.K_RETURN and self.state == "menu":
                         self.state = "game"
                     if event.key == pygame.K_UP:
+                        self.player.jumping = 0
                         self.player.controls['up'] = True
                     if event.key == pygame.K_DOWN:
                         self.player.controls['down'] = True
