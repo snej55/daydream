@@ -280,6 +280,7 @@ class App:
             "Programming: Python + Pygame",
             "",
             "Press A to return to menu"
+        
         ]
         
         y = 120
@@ -337,7 +338,7 @@ class App:
                 # Draw cloud (no scroll offset for background elements)
                 self.screen.blit(cloud_img, (int(cloud['x']), int(cloud['y'])))
     
-
+    
     def end_screen(self):
         """Draw the end screen with completion time and restart option"""
         # Paint the backdrop as background
@@ -766,8 +767,12 @@ class App:
         # Calculate total time
         total_time = sum(self.level_times) if self.level_times else 0
         if self.game_running and hasattr(self, 'level_start_time'):
-            # Add current level time
-            current_level_time = time.time() - self.level_start_time - self.total_pause_time
+            # Add current level time (accounting for pause state)
+            if not self.game_paused:
+                current_level_time = time.time() - self.level_start_time - self.total_pause_time
+            else:
+                # When paused, freeze the current level time calculation
+                current_level_time = time.time() - self.level_start_time - self.total_pause_time - (time.time() - self.pause_start_time)
             total_time += current_level_time
         
         # Starting position in top left
@@ -791,8 +796,8 @@ class App:
             self.screen.blit(level_surface, (start_x, y_pos))
             y_pos += line_height
         
-        # Show current level time if game is running
-        if self.game_running and hasattr(self, 'level_start_time'):
+        # Show current level time if game is running and not paused
+        if self.game_running and hasattr(self, 'level_start_time') and not self.game_paused:
             current_level_time = time.time() - self.level_start_time - self.total_pause_time
             current_minutes = int(current_level_time // 60)
             current_seconds = int(current_level_time % 60)
@@ -800,6 +805,17 @@ class App:
             
             current_text = f"Now: {current_minutes:02d}:{current_seconds:02d}.{current_millis//10:02d}"
             current_surface = self.small_font.render(current_text, True, (100, 255, 100))
+            self.screen.blit(current_surface, (start_x, y_pos))
+            y_pos += line_height + 3
+        elif self.game_running and hasattr(self, 'level_start_time') and self.game_paused:
+            # Show paused current level time (frozen)
+            current_level_time = time.time() - self.level_start_time - self.total_pause_time - (time.time() - self.pause_start_time)
+            current_minutes = int(current_level_time // 60)
+            current_seconds = int(current_level_time % 60)
+            current_millis = int((current_level_time % 1) * 1000)
+            
+            current_text = f"Now: {current_minutes:02d}:{current_seconds:02d}.{current_millis//10:02d} [PAUSED]"
+            current_surface = self.small_font.render(current_text, True, (255, 255, 100))
             self.screen.blit(current_surface, (start_x, y_pos))
             y_pos += line_height + 3
         
