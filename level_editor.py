@@ -51,7 +51,7 @@ class Editor:
 
         # assets
         self.assets = {
-            "grass": self.load_tileset(pygame.image.load("data/images/grass.png").convert())
+            "grass": self.load_tileset(pygame.image.load("data/images/tiles/grass.png").convert())
         }
 
         # set colorkeys
