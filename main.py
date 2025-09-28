@@ -395,7 +395,7 @@ class App:
                 millis = int((elapsed_time % 1) * 1000)
                 timer_text = f"{minutes:02d}:{seconds:02d}:{millis:02d}"
 
-                timer_color = (60, 108, 84)  # green when timer is running
+                timer_color = (60, 255, 84)  # green when timer is running
             else:
                 # Show 00:00:00 when timer hasn't started yet
                 timer_text = "00:00:000"

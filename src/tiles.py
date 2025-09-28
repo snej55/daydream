@@ -275,4 +275,12 @@ class TileMap:
                         alpha = int(time_left * 255)
                         tile_surf.set_alpha(alpha)
                     
-                    surf.blit(tile_surf, (tile['pos'][0] * self.tile_size - scroll[0], tile['pos'][1] * self.tile_size - scroll[1]))
+                    # Calculate render position
+                    render_x = tile['pos'][0] * self.tile_size - scroll[0]
+                    render_y = tile['pos'][1] * self.tile_size - scroll[1]
+                    
+                    # Render portal blocks 1 block higher
+                    if tile['type'] == 'portal':
+                        render_y -= self.tile_size
+                    
+                    surf.blit(tile_surf, (render_x, render_y))
