@@ -9,3 +9,5 @@ DS_store
 /.venv
 /.vscode
 /.idea
+/web
+*.zip
