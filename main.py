@@ -63,6 +63,7 @@ class App:
             "clouds_single": load_image("tiles/clouds_single.png")
         }
         self.kickup_palette = load_palette(self.assets["tiles/cloud"][0])
+        self.smoke_palette = load_palette(self.assets["tiles/rock"][0])
 
         self.tile_map = TileMap(self)
         self.tile_map.load(MAP)
@@ -123,7 +124,7 @@ class App:
         smoke[0][1] += smoke[1][1] * self.dt
         smoke[1][0] += (smoke[1][0] * 0.98 - smoke[1][0]) * self.dt
         smoke[1][1] += (smoke[1][1] * 0.98 - smoke[1][1]) * self.dt
-        smoke[4] += (smoke[5] - smoke[4]) / 2 * self.dt
+        smoke[4] += 5 * self.dt
         smoke[3] = max(0, smoke[3] - SMOKE_DELAY * self.dt)
         smoke[2] += 0.2 * self.dt
         surf = pygame.transform.rotate(self.alpha_surf([smoke[2], smoke[2]], smoke[3], smoke[6]), smoke[4])
