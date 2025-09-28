@@ -29,8 +29,6 @@ class TileMap:
         self.tile_map = {}
         self.off_grid = []
 
-        print(f"Loading level data from `{path}`")
-
         # load ongrid tiles
         for tile in data['level']['tiles']:
             tile_loc = f"{tile['pos'][0]};{tile['pos'][1]}"

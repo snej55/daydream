@@ -40,13 +40,15 @@ class App:
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
             "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
             "tiles/rock": load_tile_imgs("tiles/rock.png", 8),
-            "tiles/portal": load_tile_imgs("tiles/portal.png", 8),
-            "sfx/explosion": load_sound("sfx/explosion.ogg"),
+            "tiles/portal": load_animation("tiles/portal_spritesheet.png", (8, 16), 4),
+            
+            
             # sfx
             "sfx/jump": load_sound("sfx/jump.ogg"),
             "sfx/falling": load_sound("sfx/falling.ogg"),
             "sfx/portal": load_sound("sfx/portal.ogg"),
             "sfx/raining": load_sound("sfx/raining.ogg"),
+            "sfx/explosion": load_sound("sfx/vanish.ogg"),
             # player
             "player/idle": load_animation("player/idle.png", [5, 8], 5),
             "player/run": load_animation("player/run.png", [5, 8], 4),
@@ -76,13 +78,13 @@ class App:
         # Portal transition system
         self.transition_state = "none"  
         self.transition_timer = 0.0
-        self.transition_duration = 0.7  # 0.7 seconds for each fade
+        self.transition_duration = 0.5  # 0.7 seconds for each fade
         self.next_level = None
         self.current_level = 0
         self.max_levels = 2  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
         
         # Fall detection threshold
-        self.fall_threshold = 400  # If player falls below this Y position, restart
+        self.fall_threshold = 600  # If player falls below this Y position, restart
 
         self.player = Player(self, [5, 8], [50, -10])
 
@@ -151,15 +153,15 @@ class App:
         progress = self.transition_timer / self.transition_duration
         
         if self.transition_state == "fade_out":
-            # Fade to black (ease out)
+            # Fade to white (ease out)
             alpha = int(255 * self.ease_out(progress))
         elif self.transition_state == "fade_in":
-            # Fade from black (ease in)
+            # Fade from white (ease in)
             alpha = int(255 * (1 - self.ease_in(progress)))
         
-        # Create fade overlay
+        # Create fade overlay - WHITE instead of black
         fade_surface = pygame.Surface((self.screen.get_width(), self.screen.get_height()))
-        fade_surface.fill((0, 0, 0))
+        fade_surface.fill((255, 255, 255))  # White fade
         fade_surface.set_alpha(alpha)
         self.screen.blit(fade_surface, (0, 0))
     
@@ -203,6 +205,11 @@ class App:
             # Check if player has fallen too far (restart game)
             if self.player.pos.y > self.fall_threshold:
                 self.reset_player_position()
+                self.screen_shake = 5
+
+            if self.player.pos.y > self.fall_threshold - 100:
+                if "sfx/falling" in self.assets:
+                    self.assets["sfx/falling"].play()
                 return
             
             # Check for portal collision
@@ -251,6 +258,9 @@ class App:
                         self.restart_game()
                     if event.key == pygame.K_r:
                         self.reset_player_position()
+                    if event.key == pygame.K_ESCAPE:
+                        print('Game Quitted')
+                        return 
                     if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
@@ -296,7 +306,7 @@ class App:
                 pygame.display.set_caption("IDLE")
 
             await asyncio.sleep(0) # keep this for pygbag to work
-            self.clock.tick(60) # don't really need more than 60 fps
+            self.clock.tick(120) # don't really need more than 60 fps
 
 # run App() asynchronously so it works with pygbag
 async def main():
