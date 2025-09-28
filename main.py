@@ -250,22 +250,20 @@ class App:
         if portal_pos is None:
             return
         
-        # Calculate distance between player and portal
+
         player_center = pygame.Vector2(self.player.pos.x + self.player.dimensions.x // 2,
                                      self.player.pos.y + self.player.dimensions.y // 2)
         distance = player_center.distance_to(portal_pos)
         
-        # Define max distance for progress bar (adjust as needed)
-        max_distance = 200.0  # pixels
+        max_distance = 1440.0 
         
-        # Calculate progress (1.0 = very close, 0.0 = very far)
-        progress = max(0.0, min(1.0, (max_distance - distance) / max_distance))
+        progress = max(0.0, min(1.0, 1.0 - (distance / max_distance)))
         
-        # Progress bar dimensions
-        bar_width = 150
-        bar_height = 8
+        # Progress bar dimensions - made smaller
+        bar_width = 250  # Reduced from 150
+        bar_height = 3  # Reduced from 8
         bar_x = (self.screen.get_width() - bar_width) // 2
-        bar_y = 10
+        bar_y = 8        # Moved up slightly
         
         # Draw background bar
         pygame.draw.rect(self.screen, (50, 50, 50), (bar_x - 1, bar_y - 1, bar_width + 2, bar_height + 2))
@@ -273,23 +271,42 @@ class App:
         
         # Draw progress bar fill
         fill_width = int(bar_width * progress)
-        if progress > 0.7:
-            # Close to portal - green
-            color = (0, 255, 0)
-        elif progress > 0.3:
-            # Medium distance - yellow
-            color = (255, 255, 0)
-        else:
-            # Far from portal - red
-            color = (255, 0, 0)
+        # if progress > 0.7:
+        #     # Close to portal - green
+        #     color = (0, 255, 0)
+        # elif progress > 0.3:
+        #     # Medium distance - yellow
+        #     color = (154, 167, 178)
+        # else:
+        #     # Far from portal - red
+        #     color = (242, 167, 178)
+        color = (242, 167, 178)
         
         if fill_width > 0:
             pygame.draw.rect(self.screen, color, (bar_x, bar_y, fill_width, bar_height))
         
-        # Draw label text
-        label_text = self.large_font.render("Portal Distance", True, (255, 255, 255))
-        label_x = (self.screen.get_width() - label_text.get_width()) // 2
-        self.screen.blit(label_text, (label_x, bar_y - 15))
+        # Draw portal icon at the end (right side) of the progress bar using actual portal image
+        portal_icon_x = bar_x + bar_width + 3
+        portal_icon_y = bar_y - 3  # Adjust for image height
+        if "tiles/portal" in self.assets and len(self.assets["tiles/portal"]) > 0:
+            portal_img = self.assets["tiles/portal"][0]  # Get first frame of portal animation
+            # Scale down the portal image to fit nicely
+            portal_scaled = pygame.transform.scale(portal_img, (8, 8))
+            self.screen.blit(portal_scaled, (portal_icon_x, portal_icon_y))
+        
+        # Draw player icon that moves with the progress using actual player image
+        player_progress_x = bar_x + int(bar_width * progress) - 4  # Center the player icon on progress
+        player_icon_y = bar_y - 3  # Adjust for image height
+        if "player/idle" in self.assets and len(self.assets["player/idle"]) > 0:
+            player_img = self.assets["player/idle"][0]  # Get first frame of player animation
+            # Scale down the player image to fit nicely
+            player_scaled = pygame.transform.scale(player_img, (8, 8))
+            self.screen.blit(player_scaled, (player_progress_x, player_icon_y))
+        
+        # # Draw label text - smaller font would be nice but using existing
+        # label_text = self.large_font.render("Portal", True, (255, 255, 255))  # Shortened text
+        # label_x = (self.screen.get_width() - label_text.get_width()) // 2
+        # self.screen.blit(label_text, (label_x, bar_y - 12))  # Adjusted spacing
     
     def check_portal_collision(self):
         """Check if player is colliding with a portal tile"""
