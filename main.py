@@ -308,11 +308,11 @@ class App:
                 millis = int((elapsed_time % 1) * 1000)
                 timer_text = f"{minutes:02d}:{seconds:02d}:{millis:02d}"
 
-                timer_color = (0, 255, 0)  # Green when timer is running
+                timer_color = (60, 108, 84)  # green when timer is running
             else:
                 # Show 00:00:00 when timer hasn't started yet
                 timer_text = "00:00:000"
-                timer_color = (255, 0, 0)  # Red when timer hasn't started
+                timer_color = (157, 67, 67)  # Red when timer hasn't started
             
             timer_surface = self.small_font.render(timer_text, True, timer_color)
             self.screen.blit(timer_surface, (8, 8))  # Top left corner
