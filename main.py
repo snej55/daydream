@@ -191,7 +191,9 @@ class App:
                 self.sparks.pop(i)
 
     def menu(self):
-        self.screen.fill((0, 0, 0)) 
+        # Draw backdrop background instead of black fill
+        self.screen.blit(pygame.transform.scale(self.assets['backdrop'], self.screen.get_size()), (0, 0))
+        
         # Ensure logo is initialized when entering the menu
         if not hasattr(self, 'logo') or self.logo is None:
             self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
