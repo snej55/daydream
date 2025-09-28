@@ -54,7 +54,7 @@ class Editor:
             "grass": self.load_tileset(pygame.image.load("data/images/tiles/grass.png").convert()),
             "cloud": self.load_tileset(pygame.image.load("data/images/tiles/cloud.png").convert()),
             "rock": self.load_tileset(pygame.image.load("data/images/tiles/rock.png").convert()),
-            "portal": self.load_tileset(pygame.image.load("data/images/tiles/portal.png").convert())
+            "portal": self.load_tileset(pygame.image.load("data/images/tiles/portal_spritesheet.png").convert())
         }
 
         # set colorkeys
