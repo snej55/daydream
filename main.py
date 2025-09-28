@@ -62,7 +62,7 @@ class App:
 
         render_scroll = (int(self.scroll.x), int(self.scroll.y))
 
-        self.screen.fill((int(255 - (math.sin(time.time()) * 125 + 125)), int(math.sin(time.time()) * 125 + 125), 0))
+        self.screen.fill((0, 0, 0))
         self.tile_map.draw(self.screen, render_scroll)
 
     # asynchronous main loop to run in browser
