@@ -2,6 +2,7 @@ import pygame, math, random
 
 from .util import read_json
 from .sparks import Spark
+from .smoke import Smoke
 
 TILE_SIZE = 8
 # offsets set
@@ -207,6 +208,8 @@ class TileMap:
                     self.app.kickup.append([[tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], [math.cos(angle) * speed, math.sin(angle) * speed], random.random() + 9, random.choice(self.app.kickup_palette)])
                 for _ in range(random.randint(10, 20)):
                     self.app.sparks.append(Spark([tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], random.random() * 2 * math.pi, random.random() * 1.5 + 0.5, (255, 255, 255)))
+                for _ in range(10, 20):
+                    self.app.smoke.append(Smoke(tile_pos[0] + random.random() * 16 - 8, tile_pos[1] + random.random() * 16 - 8, random.random() * 2 - 1, random.random() * 2 - 1, random.choice(self.app.kickup_palette)))
                 # for _ in range(random.randint(10, 20)):
                 #     angle = random.random() * math.pi * 2
                 #     speed = random.random()
