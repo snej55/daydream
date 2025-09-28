@@ -20,7 +20,6 @@ if WEB_PLATFORM:
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
 
-
 MAP = "data/maps/0.json"
 # annelies
 class App:
@@ -38,6 +37,7 @@ class App:
         # sfx & image assets
         self.assets = {
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
+            "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
             "sfx/explosion": load_sound("sfx/explosion.ogg"),
             "sfx/jump": load_sound("sfx/jump.ogg"),
             "sfx/falling": load_sound("sfx/falling.ogg"),
@@ -122,7 +122,7 @@ class App:
                     if self.prompt_go_x <= mx <= self.prompt_go_x + 200 and self.prompt_go_y <= my <= self.prompt_go_y + 100:
                         self.state = "game"
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
@@ -132,7 +132,7 @@ class App:
                     if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                         self.player.controls['right'] = True
                 elif event.type == pygame.KEYUP:
-                    if event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.player.controls['up'] = False
                     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
                         self.player.controls['down'] = False

@@ -30,6 +30,7 @@ class Player:
         self.falling += dt
 
         if self.controls['up']:
+            print("hi")
             if self.falling < 5:
                 self.movement.y = -3
                 self.falling = 30

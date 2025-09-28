@@ -7,3 +7,5 @@ DS_store
 /build
 /dist
 /.venv
+/.vscode
+/.idea
