@@ -106,6 +106,7 @@ class App:
         self.logo_text = self.large_font.render("System of a Cloud", True, (255, 255, 255))
         self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
         self.kickup = []
+        self.sparks = []
 
     def update_kickup(self, render_scroll):
         # particle: [pos, vel, size, color]
@@ -125,11 +126,19 @@ class App:
             if p[2] <= 0:
                 self.kickup.pop(i)
             else:
-                color = pygame.Color(p[3][0], p[3][1], p[3][2], p[2] / 10 * 255)
+                color = pygame.Color(p[3][0], p[3][1], p[3][2], int(p[2] / 10 * 255))
                 self.screen.set_at((p[0][0] - render_scroll[0], p[0][1] - render_scroll[1]), color)
 
+    def update_sparks(self, render_scroll):
+        for i, spark in sorted(enumerate(self.sparks), reverse=True):
+            spark.update(self.dt)
+            if spark.speed >= 0:
+                spark.draw(self.screen, render_scroll)
+            else:
+                self.sparks.pop(i)
+
     def menu(self):
-        self.screen.fill((0, 0, 0))
+        self.screen.fill((0, 0, 0)) 
         self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 2 - self.prompt.get_height() // 2))
         self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 10 - self.logo_text.get_height() // 2))        
     
@@ -360,6 +369,7 @@ class App:
         self.tile_map.draw(self.screen, render_scroll)
 
         self.update_kickup(render_scroll)
+        self.update_sparks(render_scroll)
         self.player.draw(self.screen, render_scroll)
         
         # Draw transition overlay

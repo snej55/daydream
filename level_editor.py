@@ -14,7 +14,7 @@ LEVEL_WIDTH = 20
 LEVEL_HEIGHT = 20
 
 # json map path
-MAP = "data/maps/0.json"
+MAP = "data/maps/3.json"
 
 # tile sets that can be autotiled
 AUTO_TILE_TYPES = {'grass', 'cloud', 'rock', 'portal', 'moss'}
@@ -309,7 +309,7 @@ class Editor:
 
             self.update()
 
-            pygame.transform.scale(self.screen, self.display.size, self.display)
+            pygame.transform.scale(self.screen, (SCR_WIDTH, SCR_HEIGHT), self.display)
             pygame.display.set_caption(f"FPS: {self.clock.get_fps() :.1f}")
             pygame.display.flip()
             self.clock.tick()
