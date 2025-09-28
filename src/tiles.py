@@ -232,7 +232,25 @@ class TileMap:
                 loc = str(x) + ';' + str(y)
                 if loc in self.tile_map:
                     tile = self.tile_map[loc]
-                    tile_surf = self.app.assets[f"tiles/{tile['type']}"][tile['variant']].copy()
+                    
+                    # Bounds check for tile variant to prevent IndexError
+                    tile_type = tile['type']
+                    tile_variant = tile['variant']
+                    
+                    # Check if tile type exists in assets
+                    if f"tiles/{tile_type}" in self.app.assets:
+                        tile_assets = self.app.assets[f"tiles/{tile_type}"]
+                        # Clamp variant to available range
+                        if tile_variant >= len(tile_assets):
+                            tile_variant = 0  # Fall back to first variant
+                        tile_surf = tile_assets[tile_variant].copy()
+                    else:
+                        # Fallback to a default tile if type doesn't exist
+                        print(f"Warning: Tile type '{tile_type}' not found in assets")
+                        if "tiles/grass" in self.app.assets:
+                            tile_surf = self.app.assets["tiles/grass"][0].copy()
+                        else:
+                            continue  # Skip this tile if no fallback available
                     
                     # Add visual feedback for tiles that are about to be destroyed
                     if tile['walked_on'] and tile['type'] in DESTRUCTIBLE_TILES:
