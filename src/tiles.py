@@ -8,7 +8,7 @@ PHYSICS_TILES = {'stone', 'cloud', 'grass'}
 # tiles that can be destroyed after being walked on
 DESTRUCTIBLE_TILES = {'grass'}
 # time in seconds before tile destroys after being walked on
-DESTRUCTION_TIME = 0.5
+DESTRUCTION_TIME = 200
 
 class TileMap:
     def __init__(self, app):
