@@ -66,4 +66,4 @@ class Player:
                 self.pos.y = r.y
 
     def draw(self, surf, scroll):
-        pygame.draw.rect(surf, (255, 0, 0), self.get_rect())
+        pygame.draw.rect(surf, (255, 0, 0), (self.pos.x - scroll[0], self.pos.y - scroll[1], self.dimensions.x, self.dimensions.y))
