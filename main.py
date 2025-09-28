@@ -37,7 +37,6 @@ class App:
         self.assets = {
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
             "sfx/explosion": load_sound("sfx/explosion_trimmed.ogg")
-            
         }
 
         self.tile_map = TileMap(self)
@@ -55,8 +54,7 @@ class App:
         self.state = "game"
     
 
-    def menu():
-        
+    def menu(self):
         pass
 
     # put all the game stuff here
