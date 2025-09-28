@@ -59,14 +59,11 @@ class App:
         
         self.large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 11)
 
-<<<<<<< HEAD
         self.state = "game_over"
         self.game_over_message = random.randint(0, 4)
-=======
         self.state = "game"
 
         self.player = Player(self, [7, 12], [50, 10])
->>>>>>> ff973d54411db2927c287895092e972b3db3b39f
     
     def menu(self):
         self.prompt_m_x = self.screen.get_width() // 2 - 100
@@ -114,7 +111,6 @@ class App:
                     my //= SCALE
                     if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_y <= my <= self.prompt_m_y + 100:
                         self.state = "game"
-<<<<<<< HEAD
                 if event.type == pygame.MOUSEBUTTONDOWN and self.state == "game_over":
                     mx, my = pygame.mouse.get_pos()
                     mx //= SCALE
@@ -122,7 +118,6 @@ class App:
                     if self.prompt_go_x <= mx <= self.prompt_go_x + 200 and self.prompt_go_y <= my <= self.prompt_go_y + 100:
                         self.state = "game"
                 
-=======
                     if event.key == pygame.K_UP:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
@@ -141,7 +136,6 @@ class App:
                         self.player.controls['left'] = False
                     if event.key == pygame.K_RIGHT:
                         self.player.controls['right'] = False
->>>>>>> ff973d54411db2927c287895092e972b3db3b39f
             
             # update delta time
             self.dt = (time.time() - self.last_time) * 60
