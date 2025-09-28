@@ -40,8 +40,8 @@ class App:
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
             "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
             "tiles/rock": load_tile_imgs("tiles/rock.png", 8),
+            "tiles/moss": load_tile_imgs("tiles/moss.png", 8),
             "tiles/portal": load_animation("tiles/portal_spritesheet.png", (8, 16), 4),
-            
             
             # sfx
             "sfx/jump": load_sound("sfx/jump.ogg"),
@@ -55,7 +55,8 @@ class App:
             "player/jump": load_animation("player/jump.png", [5, 8], 4),
             "player/land": load_animation("player/land.png", [5, 8], 5),
             # bg
-            "backdrop": load_image("tiles/background.png")
+            "backdrop": load_image("tiles/background.png"),
+            "tiles/large_decor": load_animation("tiles/large_decor.png", [50, 50], 6)
         }
 
         self.tile_map = TileMap(self)
