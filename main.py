@@ -23,6 +23,8 @@ SCALE = 2
 
 MAP = "data/maps/0.json"
 
+pygame.mixer.music.load("data/audio/chicken.ogg")
+
 # annelies
 class App:
     def __init__(self):
@@ -591,6 +593,7 @@ class App:
 
     # asynchronous main loop to run in browser
     async def run(self):
+        pygame.mixer.music.play(-1)
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

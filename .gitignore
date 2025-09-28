@@ -1,4 +1,4 @@
-*.wav
+# *.wav
 *.pyc
 *.egg-info
 *-pygbag.???
