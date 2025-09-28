@@ -49,6 +49,7 @@ class App:
             "sfx/portal": load_sound("sfx/portal.ogg"),
             "sfx/raining": load_sound("sfx/raining.ogg"),
             "sfx/explosion": load_sound("sfx/vanish.ogg"),
+            "sfx/start": load_sound("sfx/start.ogg"),
             # player
             "player/idle": load_animation("player/idle.png", [5, 8], 5),
             "player/run": load_animation("player/run.png", [5, 8], 4),
@@ -306,10 +307,11 @@ class App:
                 seconds = int(elapsed_time % 60)
                 millis = int((elapsed_time % 1) * 1000)
                 timer_text = f"{minutes:02d}:{seconds:02d}:{millis:02d}"
+
                 timer_color = (0, 255, 0)  # Green when timer is running
             else:
                 # Show 00:00:00 when timer hasn't started yet
-                timer_text = "00:00:00"
+                timer_text = "00:00:000"
                 timer_color = (255, 0, 0)  # Red when timer hasn't started
             
             timer_surface = self.small_font.render(timer_text, True, timer_color)
@@ -474,6 +476,8 @@ class App:
             self.game_start_time = time.time()
             self.game_running = True
             self.isFirstInput = False
+            if "sfx/start" in self.assets:
+                self.assets["sfx/start"].play()
 
 
     # asynchronous main loop to run in browser
