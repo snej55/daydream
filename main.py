@@ -21,6 +21,8 @@ WIDTH, HEIGHT = 640, 480
 SCALE = 2
 
 MAP = "data/maps/0.json"
+SMOKE_DELAY = 2
+
 # annelies
 class App:
     def __init__(self):
@@ -85,7 +87,7 @@ class App:
         self.transition_duration = 0.5  # 0.7 seconds for each fade
         self.next_level = None
         self.current_level = 0
-        self.max_levels = 2  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
+        self.max_levels = 4  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
         
         # Fall detection threshold
         self.fall_threshold = 600  # If player falls below this Y position, restart
@@ -107,6 +109,27 @@ class App:
         self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
         self.kickup = []
         self.sparks = []
+        self.smoke = []
+    
+    @staticmethod
+    def alpha_surf(dim, alpha, color):
+        surf = pygame.Surface(dim)
+        surf.fill(color)
+        surf.set_alpha(alpha)
+        return surf.convert_alpha()
+
+    def calc_smoke(self, smoke, render_scroll):
+        smoke[0][0] += smoke[1][0] * self.dt
+        smoke[0][1] += smoke[1][1] * self.dt
+        smoke[1][0] += (smoke[1][0] * 0.98 - smoke[1][0]) * self.dt
+        smoke[1][1] += (smoke[1][1] * 0.98 - smoke[1][1]) * self.dt
+        smoke[4] += (smoke[5] - smoke[4]) / 2 * self.dt
+        smoke[3] = max(0, smoke[3] - SMOKE_DELAY * self.dt)
+        smoke[2] += 0.2 * self.dt
+        surf = pygame.transform.rotate(self.alpha_surf([smoke[2], smoke[2]], smoke[3], smoke[6]), smoke[4])
+        if not smoke[3]:
+            self.smoke.remove(smoke)
+        return (surf, (smoke[0][0] - surf.get_width() * 0.5 - render_scroll[0], smoke[0][1] - surf.get_height() * 0.5 - render_scroll[1]))
 
     def update_kickup(self, render_scroll):
         # particle: [pos, vel, size, color]
@@ -308,11 +331,11 @@ class App:
                 millis = int((elapsed_time % 1) * 1000)
                 timer_text = f"{minutes:02d}:{seconds:02d}:{millis:02d}"
 
-                timer_color = (0, 255, 0)  # Green when timer is running
+                timer_color = (60, 108, 84)  # green when timer is running
             else:
                 # Show 00:00:00 when timer hasn't started yet
                 timer_text = "00:00:000"
-                timer_color = (255, 0, 0)  # Red when timer hasn't started
+                timer_color = (157, 67, 67)  # Red when timer hasn't started
             
             timer_surface = self.small_font.render(timer_text, True, timer_color)
             self.screen.blit(timer_surface, (8, 8))  # Top left corner
@@ -370,6 +393,8 @@ class App:
 
         self.update_kickup(render_scroll)
         self.update_sparks(render_scroll)
+        self.screen.fblits([self.calc_smoke(smoke, render_scroll) for smoke in self.smoke.copy()])
+
         self.player.draw(self.screen, render_scroll)
         
         # Draw transition overlay
