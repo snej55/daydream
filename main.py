@@ -35,8 +35,16 @@ class App:
 
         # sfx & image assets
         self.assets = {
-            "tiles/grass": load_tile_imgs("tiles/grass.png", 8)
+            "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
+            "sfx/explosion": load_sound("sfx/explosion_trimmed.ogg")
+            
         }
+
+        self.tile_map = TileMap(self)
+        self.tile_map.load(MAP)
+
+        self.scroll = pygame.Vector2(0, 0)
+        self.screen_shake = 0
 
         self.tile_map = TileMap(self)
         self.tile_map.load(MAP)
