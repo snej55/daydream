@@ -2,6 +2,7 @@ import asyncio, pygame, random, time, math, sys, platform
 
 from src.util import load_image, load_sound, load_tile_imgs
 from src.tiles import TileMap
+from src.player import Player
 
 # conor was here
 pygame.init()
@@ -18,6 +19,7 @@ if WEB_PLATFORM:
 
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
+
 
 MAP = "data/maps/0.json"
 # annelies
@@ -36,7 +38,11 @@ class App:
         # sfx & image assets
         self.assets = {
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
-            # "sfx/explosion": load_sound("sfx/explosion_trimmed.ogg")
+            "sfx/explosion": load_sound("sfx/explosion.ogg"),
+            "sfx/jump": load_sound("sfx/jump.ogg"),
+            "sfx/falling": load_sound("sfx/falling.ogg"),
+            "sfx/portal": load_sound("sfx/portal.ogg"),
+            "sfx/raining": load_sound("sfx/raining.ogg")
         }
 
         self.tile_map = TileMap(self)
@@ -53,8 +59,14 @@ class App:
         
         self.large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 11)
 
+<<<<<<< HEAD
         self.state = "game_over"
         self.game_over_message = random.randint(0, 4)
+=======
+        self.state = "game"
+
+        self.player = Player(self, [7, 12], [50, 10])
+>>>>>>> ff973d54411db2927c287895092e972b3db3b39f
     
     def menu(self):
         self.prompt_m_x = self.screen.get_width() // 2 - 100
@@ -77,11 +89,16 @@ class App:
     
     # put all the game stuff here
     def update(self):
+        # Update tile destruction timers
+        self.tile_map.update(self.dt / 60.0)  # Convert dt to seconds
+        
+        self.player.update(self.dt, self.tile_map)
 
         render_scroll = (int(self.scroll.x), int(self.scroll.y))
-
         self.screen.fill((0, 0, 0))
         self.tile_map.draw(self.screen, render_scroll)
+
+        self.player.draw(self.screen, render_scroll)
 
     # asynchronous main loop to run in browser
     async def run(self):
@@ -97,6 +114,7 @@ class App:
                     my //= SCALE
                     if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_y <= my <= self.prompt_m_y + 100:
                         self.state = "game"
+<<<<<<< HEAD
                 if event.type == pygame.MOUSEBUTTONDOWN and self.state == "game_over":
                     mx, my = pygame.mouse.get_pos()
                     mx //= SCALE
@@ -104,6 +122,26 @@ class App:
                     if self.prompt_go_x <= mx <= self.prompt_go_x + 200 and self.prompt_go_y <= my <= self.prompt_go_y + 100:
                         self.state = "game"
                 
+=======
+                    if event.key == pygame.K_UP:
+                        self.player.jumping = 0
+                        self.player.controls['up'] = True
+                    if event.key == pygame.K_DOWN:
+                        self.player.controls['down'] = True
+                    if event.key == pygame.K_LEFT:
+                        self.player.controls['left'] = True
+                    if event.key == pygame.K_RIGHT:
+                        self.player.controls['right'] = True
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_UP:
+                        self.player.controls['up'] = False
+                    if event.key == pygame.K_DOWN:
+                        self.player.controls['down'] = False
+                    if event.key == pygame.K_LEFT:
+                        self.player.controls['left'] = False
+                    if event.key == pygame.K_RIGHT:
+                        self.player.controls['right'] = False
+>>>>>>> ff973d54411db2927c287895092e972b3db3b39f
             
             # update delta time
             self.dt = (time.time() - self.last_time) * 60
