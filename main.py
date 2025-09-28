@@ -2,6 +2,7 @@ import asyncio, pygame, time, math, sys, platform
 
 from src.util import load_image, load_sound, load_tile_imgs
 from src.tiles import TileMap
+from src.player import Player
 
 # conor was here
 pygame.init()
@@ -54,6 +55,8 @@ class App:
         self.screen_shake = 0
 
         self.state = "game"
+
+        self.player = Player(self, [7, 12], [50, 10])
     
     def menu(self):
         self.line_1 = large_font.render("INSERT NAME HERE", False, (255, 255, 255))
@@ -63,10 +66,13 @@ class App:
 
     # put all the game stuff here
     def update(self):
-        render_scroll = (int(self.scroll.x), int(self.scroll.y))
+        self.player.update(self.dt, self.tile_map)
 
+        render_scroll = (int(self.scroll.x), int(self.scroll.y))
         self.screen.fill((0, 0, 0))
         self.tile_map.draw(self.screen, render_scroll)
+
+        self.player.draw(self.screen, render_scroll)
 
     # asynchronous main loop to run in browser
     async def run(self):
