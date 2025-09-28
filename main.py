@@ -1,6 +1,6 @@
 import asyncio, pygame, time, math, sys, platform
 
-from src.util import load_image, load_sound
+from src.util import load_image, load_soundy
 
 # conor was here
 pygame.init()
@@ -34,19 +34,22 @@ class App:
         self.assets = {
             "tiles/grass": load_image("grass.png")
         }
+
+        self.state = "menu"
     
+
+    def menu():
+        
+        pass
+
     # put all the game stuff here
     def update(self):
-        # update delta time
-        self.dt = (time.time() - self.last_time) * 60
-        self.last_time = time.time()
 
         self.screen.fill((int(255 - (math.sin(time.time()) * 125 + 125)), int(math.sin(time.time()) * 125 + 125), 0))
         self.screen.blit(self.assets["tiles/grass"], (50, 50))
 
     # asynchronous main loop to run in browser
     async def run(self):
-        pygame.mixer.music.play(-1)
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -54,6 +57,12 @@ class App:
                 if event.type == pygame.WINDOWRESIZED:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
             
+            # update delta time
+            self.dt = (time.time() - self.last_time) * 60
+            self.last_time = time.time()
+
+            if self.state == "menu":
+                
             # update game
             self.update()
 
