@@ -82,7 +82,7 @@ class App:
         self.max_levels = 2  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
         
         # Fall detection threshold
-        self.fall_threshold = 400  # If player falls below this Y position, restart
+        self.fall_threshold = 600  # If player falls below this Y position, restart
 
         self.player = Player(self, [5, 8], [50, -10])
 
