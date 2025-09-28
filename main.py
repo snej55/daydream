@@ -23,6 +23,8 @@ SCALE = 2
 
 MAP = "data/maps/0.json"
 
+pygame.mixer.music.load("data/audio/chicken.ogg")
+
 # annelies
 class App:
     def __init__(self):
@@ -395,7 +397,7 @@ class App:
                 millis = int((elapsed_time % 1) * 1000)
                 timer_text = f"{minutes:02d}:{seconds:02d}:{millis:02d}"
 
-                timer_color = (60, 108, 84)  # green when timer is running
+                timer_color = (60, 255, 84)  # green when timer is running
             else:
                 # Show 00:00:00 when timer hasn't started yet
                 timer_text = "00:00:000"
@@ -591,6 +593,7 @@ class App:
 
     # asynchronous main loop to run in browser
     async def run(self):
+        pygame.mixer.music.play(-1)
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
