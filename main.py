@@ -1,4 +1,4 @@
-import asyncio, pygame, time, math, sys, platform
+import asyncio, pygame, random, time, math, sys, platform
 
 from src.util import load_image, load_sound, load_tile_imgs
 from src.tiles import TileMap
@@ -18,8 +18,6 @@ if WEB_PLATFORM:
 
 WIDTH, HEIGHT = 640, 480
 SCALE = 2
-large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 42)
-small_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 36)
 
 MAP = "data/maps/0.json"
 # annelies
@@ -52,16 +50,31 @@ class App:
 
         self.scroll = pygame.Vector2(0, 0)
         self.screen_shake = 0
+        
+        self.large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 11)
 
-        self.state = "game"
+        self.state = "game_over"
+        self.game_over_message = random.randint(0, 4)
     
-
     def menu(self):
-        self.line_1 = large_font.render("INSERT NAME HERE", False, (255, 255, 255))
-        self.line_2 = small_font.render("ENTER to begin...", False, (255, 255, 255))
-        self.screen.blit(self.line_1, ((WIDTH - self.line_1.get_width() // 2), (HEIGHT - self.line_1.get_width() // 2)))
-        self.display.blit(self.line_2, ((WIDTH - self.line_2.get_width() // 2), (HEIGHT - self.line_2.get_width() // 2 + 75)))
+        self.prompt_m_x = self.screen.get_width() // 2 - 100
+        self.prompt_m_y = self.screen.get_height() // 2 - 50
+        pygame.draw.rect(self.screen, (100, 0, 0), [self.prompt_m_x, self.prompt_m_y, 200, 100])
+        self.prompt_m = self.large_font.render("Click Here", True, (255, 255, 255))
+        self.screen.blit(self.prompt_m, ((self.prompt_m_x - self.prompt_m.get_width() // 2 + 100), (self.prompt_m_y + 50 - self.prompt_m.get_height() // 2)))
 
+    def game_over(self):
+        self.screen.fill((0, 0, 0))
+        game_over_messages = ["Did you get that on camera?", "I'm not mad, just dissapointed", "Caught in 4K", "You did not try your best"]
+        message = game_over_messages[self.game_over_message % len(game_over_messages)]
+        self.prompt_go_x = self.screen.get_width() // 2 - 100
+        self.prompt_go_y = self.screen.get_height() // 2 - 50
+        pygame.draw.rect(self.screen, (100, 0, 0), (self.prompt_go_x, self.prompt_go_y, 200, 100))
+        self.prompt_go = self.large_font.render(f"{message}", True, (255, 255, 255))
+        self.prompt_go_2 = self.large_font.render("Click Here", True, (255, 255, 255))
+        self.screen.blit(self.prompt_go_2, ((self.prompt_go_x - self.prompt_go_2.get_width() // 2 + 100), (self.prompt_go_y + 50 - self.prompt_go_2.get_height() // 2)))
+        self.screen.blit(self.prompt_go, ((self.prompt_go_x - self.prompt_go.get_width() // 2 + 100), (self.prompt_go_y + 50 - self.prompt_go.get_height() // 2) + 75))
+    
     # put all the game stuff here
     def update(self):
 
@@ -78,9 +91,19 @@ class App:
                     return
                 if event.type == pygame.WINDOWRESIZED:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN and self.state == "menu":
+                if event.type == pygame.MOUSEBUTTONDOWN and self.state == "menu":
+                    mx, my = pygame.mouse.get_pos()
+                    mx //= SCALE
+                    my //= SCALE
+                    if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_y <= my <= self.prompt_m_y + 100:
                         self.state = "game"
+                if event.type == pygame.MOUSEBUTTONDOWN and self.state == "game_over":
+                    mx, my = pygame.mouse.get_pos()
+                    mx //= SCALE
+                    my //= SCALE
+                    if self.prompt_go_x <= mx <= self.prompt_go_x + 200 and self.prompt_go_y <= my <= self.prompt_go_y + 100:
+                        self.state = "game"
+                
             
             # update delta time
             self.dt = (time.time() - self.last_time) * 60
@@ -91,7 +114,8 @@ class App:
             elif self.state == "game":
                 # update game
                 self.update()
-
+            elif self.state == "game_over":
+                self.game_over()
             # check if tab is focused if running through web (avoid messing up dt and stuff)
             if WEB_PLATFORM:
                 self.active = not js.document.hidden
