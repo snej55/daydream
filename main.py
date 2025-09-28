@@ -89,7 +89,7 @@ class App:
         self.transition_duration = 0.5  # 0.7 seconds for each fade
         self.next_level = None
         self.current_level = 0
-        self.max_levels = 1  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
+        self.max_levels = 5  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
         
         # Fall detection threshold
         self.fall_threshold = 600  # If player falls below this Y position, restart
