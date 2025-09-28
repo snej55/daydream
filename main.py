@@ -25,7 +25,7 @@ MAP = "data/maps/0.json"
 
 pygame.mixer.music.load("data/audio/chicken.ogg")
 
-# annelies
+# annelies was here
 class App:
     def __init__(self):
         # no need for separate scaling, pygbag scales canvas automatically
@@ -46,7 +46,7 @@ class App:
             "tiles/rock": load_tile_imgs("tiles/rock.png", 8),
             "tiles/moss": load_tile_imgs("tiles/moss.png", 8),
             "tiles/portal": load_animation("tiles/portal_spritesheet.png", (8, 16), 4),
-            
+            # Nathan was here
             # sfx
             "sfx/jump": load_sound("sfx/jump.ogg"),
             "sfx/falling": load_sound("sfx/falling.ogg"),
