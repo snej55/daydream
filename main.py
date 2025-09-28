@@ -40,20 +40,23 @@ class App:
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
             "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
             "tiles/rock": load_tile_imgs("tiles/rock.png", 8),
-            "tiles/portal": load_tile_imgs("tiles/portal.png", 8),
-            "sfx/explosion": load_sound("sfx/explosion.ogg"),
+            "tiles/moss": load_tile_imgs("tiles/moss.png", 8),
+            "tiles/portal": load_animation("tiles/portal_spritesheet.png", (8, 16), 4),
+            
             # sfx
             "sfx/jump": load_sound("sfx/jump.ogg"),
             "sfx/falling": load_sound("sfx/falling.ogg"),
             "sfx/portal": load_sound("sfx/portal.ogg"),
             "sfx/raining": load_sound("sfx/raining.ogg"),
+            "sfx/explosion": load_sound("sfx/vanish.ogg"),
             # player
             "player/idle": load_animation("player/idle.png", [5, 8], 5),
             "player/run": load_animation("player/run.png", [5, 8], 4),
             "player/jump": load_animation("player/jump.png", [5, 8], 4),
             "player/land": load_animation("player/land.png", [5, 8], 5),
             # bg
-            "backdrop": load_image("tiles/background.png")
+            "backdrop": load_image("tiles/background.png"),
+            "tiles/large_decor": load_animation("tiles/large_decor.png", [50, 50], 6)
         }
 
         self.tile_map = TileMap(self)
@@ -76,40 +79,24 @@ class App:
         # Portal transition system
         self.transition_state = "none"  
         self.transition_timer = 0.0
-        self.transition_duration = 0.7  # 0.7 seconds for each fade
+        self.transition_duration = 0.5  # 0.7 seconds for each fade
         self.next_level = None
         self.current_level = 0
         self.max_levels = 2  # Number avl lvl (Jens told me to not comment alot, so I use abbrivations :) )
         
         # Fall detection threshold
-        self.fall_threshold = 400  # If player falls below this Y position, restart
+        self.fall_threshold = 600  # If player falls below this Y position, restart
 
         self.player = Player(self, [5, 8], [50, -10])
 
         #menu loading
-        self.prompt_m_x = self.screen.get_width() // 2 - 100
-        self.prompt_m = self.large_font.render("Click here to play", True, (255, 255, 255))
-        self.prompt_m_2 = self.large_font.render("Press ENTER to view controls", True, (255, 255, 255))
-
-        #game over loading
-        self.prompt_go_x = self.screen.get_width() // 2 - 100
-        self.prompt_go_y = self.screen.get_height() // 2 - 50
-        self.game_over_messages = ["Did you get that on camera?", "I'm not mad, just dissapointed", "Caught in 4K", "You did not try your best"]
-        self.message = self.game_over_messages[self.game_over_message % len(self.game_over_messages)]
-        self.prompt_go = self.large_font.render(f"{self.message}", True, (255, 255, 255))
-        self.prompt_go_2 = self.large_font.render("Click here to play", True, (255, 255, 255))
+        self.prompt = self.large_font.render("Press ENTER to start", True, (255, 255, 255))
+        self.logo_text = self.large_font.render("System of a Cloud", True, (255, 255, 255))
 
     def menu(self):
-        pygame.draw.rect(self.screen, (100, 0, 0), [self.prompt_m_x, 0, 200, 100])
-        self.screen.blit(self.prompt_m, ((self.prompt_m_x - self.prompt_m.get_width() // 2), (50 - self.prompt_m_2.get_height())))
-        self.screen.blit(self.prompt_m_2, ((self.prompt_m_x - self.prompt_m_2.get_width()) // 2, 200))
-
-    def game_over(self):
         self.screen.fill((0, 0, 0))
-        pygame.draw.rect(self.screen, (100, 0, 0), (self.prompt_go_x, self.prompt_go_y, 200, 100))
-        self.screen.blit(self.prompt_go_2, ((self.prompt_go_x - self.prompt_go_2.get_width() // 2 + 100), (self.prompt_go_y + 50 - self.prompt_go_2.get_height() // 2)))
-        self.screen.blit(self.prompt_go, ((self.prompt_go_x - self.prompt_go.get_width() // 2 + 100), (self.prompt_go_y + 50 - self.prompt_go.get_height() // 2) + 75))
-    
+        self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 2 - self.prompt.get_height() // 2))
+        self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 10 - self.logo_text.get_height() // 2))        
     def start_level_transition(self, next_level):
         """Start the fade-out transition to a new level"""
         if self.transition_state == "none":
@@ -168,15 +155,15 @@ class App:
         progress = self.transition_timer / self.transition_duration
         
         if self.transition_state == "fade_out":
-            # Fade to black (ease out)
+            # Fade to white (ease out)
             alpha = int(255 * self.ease_out(progress))
         elif self.transition_state == "fade_in":
-            # Fade from black (ease in)
+            # Fade from white (ease in)
             alpha = int(255 * (1 - self.ease_in(progress)))
         
-        # Create fade overlay
+        # Create fade overlay - WHITE instead of black
         fade_surface = pygame.Surface((self.screen.get_width(), self.screen.get_height()))
-        fade_surface.fill((0, 0, 0))
+        fade_surface.fill((255, 255, 255))  # White fade
         fade_surface.set_alpha(alpha)
         self.screen.blit(fade_surface, (0, 0))
     
@@ -220,6 +207,11 @@ class App:
             # Check if player has fallen too far (restart game)
             if self.player.pos.y > self.fall_threshold:
                 self.reset_player_position()
+                self.screen_shake = 5
+
+            if self.player.pos.y > self.fall_threshold - 100:
+                if "sfx/falling" in self.assets:
+                    self.assets["sfx/falling"].play()
                 return
             
             # Check for portal collision
@@ -239,6 +231,84 @@ class App:
         
         # Draw transition overlay
         self.draw_transition_overlay()
+        
+        # Draw portal distance progress bar (only during gameplay)
+        if self.state == "game" and self.transition_state == "none":
+            self.draw_portal_progress_bar()
+    
+    def find_portal_position(self):
+        """Find the position of the portal tile in the current level"""
+        for tile_loc, tile in self.tile_map.tile_map.items():
+            if tile['type'] == 'portal':
+                # Return the center position of the portal tile
+                tile_x = tile['pos'][0] * self.tile_map.tile_size + self.tile_map.tile_size // 2
+                tile_y = tile['pos'][1] * self.tile_map.tile_size + self.tile_map.tile_size // 2
+                return pygame.Vector2(tile_x, tile_y)
+        return None
+    
+    def draw_portal_progress_bar(self):
+        """Draw a progress bar showing distance to portal"""
+        portal_pos = self.find_portal_position()
+        if portal_pos is None:
+            return
+        
+
+        player_center = pygame.Vector2(self.player.pos.x + self.player.dimensions.x // 2,
+                                     self.player.pos.y + self.player.dimensions.y // 2)
+        distance = player_center.distance_to(portal_pos)
+        
+        max_distance = 1440.0 
+        
+        progress = max(0.0, min(1.0, 1.0 - (distance / max_distance)))
+        
+        # Progress bar dimensions - made smaller
+        bar_width = 250  # Reduced from 150
+        bar_height = 3  # Reduced from 8
+        bar_x = (self.screen.get_width() - bar_width) // 2
+        bar_y = 8        # Moved up slightly
+        
+        # Draw background bar
+        pygame.draw.rect(self.screen, (50, 50, 50), (bar_x - 1, bar_y - 1, bar_width + 2, bar_height + 2))
+        pygame.draw.rect(self.screen, (100, 100, 100), (bar_x, bar_y, bar_width, bar_height))
+        
+        # Draw progress bar fill
+        fill_width = int(bar_width * progress)
+        # if progress > 0.7:
+        #     # Close to portal - green
+        #     color = (0, 255, 0)
+        # elif progress > 0.3:
+        #     # Medium distance - yellow
+        #     color = (154, 167, 178)
+        # else:
+        #     # Far from portal - red
+        #     color = (242, 167, 178)
+        color = (242, 167, 178)
+        
+        if fill_width > 0:
+            pygame.draw.rect(self.screen, color, (bar_x, bar_y, fill_width, bar_height))
+        
+        # Draw portal icon at the end (right side) of the progress bar using actual portal image
+        portal_icon_x = bar_x + bar_width + 3
+        portal_icon_y = bar_y - 3  # Adjust for image height
+        if "tiles/portal" in self.assets and len(self.assets["tiles/portal"]) > 0:
+            portal_img = self.assets["tiles/portal"][0]  # Get first frame of portal animation
+            # Scale down the portal image to fit nicely
+            portal_scaled = pygame.transform.scale(portal_img, (8, 8))
+            self.screen.blit(portal_scaled, (portal_icon_x, portal_icon_y))
+        
+        # Draw player icon that moves with the progress using actual player image
+        player_progress_x = bar_x + int(bar_width * progress) - 4  # Center the player icon on progress
+        player_icon_y = bar_y - 3  # Adjust for image height
+        if "player/idle" in self.assets and len(self.assets["player/idle"]) > 0:
+            player_img = self.assets["player/idle"][0]  # Get first frame of player animation
+            # Scale down the player image to fit nicely
+            player_scaled = pygame.transform.scale(player_img, (8, 8))
+            self.screen.blit(player_scaled, (player_progress_x, player_icon_y))
+        
+        # # Draw label text - smaller font would be nice but using existing
+        # label_text = self.large_font.render("Portal", True, (255, 255, 255))  # Shortened text
+        # label_x = (self.screen.get_width() - label_text.get_width()) // 2
+        # self.screen.blit(label_text, (label_x, bar_y - 12))  # Adjusted spacing
     
     def check_portal_collision(self):
         """Check if player is colliding with a portal tile"""
@@ -261,18 +331,6 @@ class App:
                     return
                 if event.type == pygame.WINDOWRESIZED:
                     self.screen = pygame.Surface((self.display.get_width() // SCALE, self.display.get_height() // SCALE))
-                if event.type == pygame.MOUSEBUTTONDOWN and self.state == "menu":
-                    mx, my = pygame.mouse.get_pos()
-                    mx //= SCALE
-                    my //= SCALE
-                    if self.prompt_m_x <= mx <= self.prompt_m_x + 200 and self.prompt_m_y <= my <= self.prompt_m_y + 100:
-                        self.restart_game()
-                if event.type == pygame.MOUSEBUTTONDOWN and self.state == "game_over":
-                    mx, my = pygame.mouse.get_pos()
-                    mx //= SCALE
-                    my //= SCALE
-                    if self.prompt_go_x <= mx <= self.prompt_go_x + 200 and self.prompt_go_y <= my <= self.prompt_go_y + 100:
-                        self.restart_game()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         self.restart_game()
@@ -280,6 +338,9 @@ class App:
                         self.restart_game()
                     if event.key == pygame.K_r:
                         self.reset_player_position()
+                    if event.key == pygame.K_ESCAPE:
+                        print('Game Quitted')
+                        return 
                     if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
                         self.player.jumping = 0
                         self.player.controls['up'] = True
@@ -308,8 +369,6 @@ class App:
             elif self.state == "game":
                 # update game
                 self.update()
-            elif self.state == "game_over":
-                self.game_over()
             # check if tab is focused if running through web (avoid messing up dt and stuff)
             if WEB_PLATFORM:
                 self.active = not js.document.hidden
@@ -327,7 +386,7 @@ class App:
                 pygame.display.set_caption("IDLE")
 
             await asyncio.sleep(0) # keep this for pygbag to work
-            self.clock.tick(60) # don't really need more than 60 fps
+            self.clock.tick(120) # don't really need more than 60 fps
 
 # run App() asynchronously so it works with pygbag
 async def main():

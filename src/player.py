@@ -17,6 +17,7 @@ class Anim:
     def update(self, dt):
         self.frame += self.speed * dt
         self.step = math.floor(self.frame) % len(self.anim)
+        # print(self.step)
         if not self.loop:
             self.step = min(math.floor(self.frame), len(self.anim) - 1)
 
@@ -39,8 +40,8 @@ class Player:
         self.movement = pygame.Vector2(0, 0)
         
         # More realistic physics constants
-        self.acceleration = 0.9     # How fast we accelerate when input is pressed
-        self.deceleration = 0.50    # How fast we decelerate when no input (stronger than friction)
+        self.acceleration = 0.6     # How fast we accelerate when input is pressed
+        self.deceleration = 0.1    # How fast we decelerate when no input (stronger than friction)
         self.air_acceleration = 0.25  # Reduced acceleration when in air
         self.air_deceleration = 0.98  # Slower deceleration in air
         self.friction = 0.8          # Ground friction (applied always)
@@ -48,17 +49,16 @@ class Player:
         self.max_speed = 3        # Maximum horizontal speed
         self.gravity = 0.25          # Gravity strength
         self.max_fall_speed = 6      # Terminal velocity
-        self.jump_power = -4.5      # Jump strength (negative = upward)
+        self.jump_power = -4     # Jump strength (negative = upward)
         self.decel_threshold = 0.1   # Speed below which we stop completely
         # self.app.assets['sfx/raining'].play()
 
         self.flip = False
-        self.idle = Anim(0.1, self.app.assets['player/idle'])
-        self.run = Anim(0.2, self.app.assets['player/run'])
-        self.jump = Anim(0.2, self.app.assets['player/jump'])
-        self.land = Anim(0.2, self.app.assets['player/land'], loop=False)
+        self.idle = Anim(0.2, self.app.assets['player/idle'])
+        self.run = Anim(0.3, self.app.assets['player/run'])
+        self.jump = Anim(0.5, self.app.assets['player/jump'])
+        self.land = Anim(0.3, self.app.assets['player/land'], loop=False)
         self.grounded = 99
-        self.anim = Anim(0.1, self.app.assets['player/idle'])
     
     def update_anim(self, dt):
         if self.falling > 3:
@@ -72,7 +72,7 @@ class Player:
             self.idle.reset()
             self.run.reset()
             self.land.update(dt)
-        elif abs(self.movement.x) > 0.1:
+        elif abs(self.movement.x) > 0.01:
             self.land.reset()
             self.idle.reset()
             self.jump.reset()
@@ -175,29 +175,25 @@ class Player:
                     self.falling = 0
                     # Mark the tile as walked on when player lands on it
                     tile_map.mark_tile_walked_on((rect.centerx, rect.centery))
-                    print(f"Player landed on tile at {rect.centerx}, {rect.centery}")
                 elif fm.y < 0:
                     r.top = rect.bottom
                 self.movement.y = 0
                 self.collisions['up'] = True
                 self.pos.y = r.y
 
-        self.anim.update(dt)
         self.update_anim(dt)
 
     def draw(self, surf, scroll):
-        self.anim.flip = self.flip
-        self.anim.render(surf, scroll, self.pos)
-        # if self.falling > 3:
-        #     self.jump.flip = self.flip
-        #     self.jump.render(surf, scroll, self.pos)
-        # elif self.grounded < 30:
-        #     self.jump.flip = self.flip
-        #     self.jump.render(surf, scroll, self.pos)
-        # elif abs(self.movement.x) > 0.1:
-        #     self.jump.flip = self.flip
-        #     self.jump.render(surf, scroll, self.pos)
-        # else:
-        #     self.jump.flip = self.flip
-        #     self.jump.render(surf, scroll, self.pos)
+        if self.falling > 3:
+            self.jump.flip = self.flip
+            self.jump.render(surf, scroll, self.pos)
+        elif self.grounded < 30:
+            self.jump.flip = self.flip
+            self.jump.render(surf, scroll, self.pos)
+        elif abs(self.movement.x) > 0.1:
+            self.jump.flip = self.flip
+            self.jump.render(surf, scroll, self.pos)
+        else:
+            self.jump.flip = self.flip
+            self.jump.render(surf, scroll, self.pos)
         # pygame.draw.rect(surf, (255, 0, 0), (self.pos.x - scroll[0], self.pos.y - scroll[1], self.dimensions.x, self.dimensions.y))

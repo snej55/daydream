@@ -4,14 +4,14 @@ from .util import read_json
 TILE_SIZE = 8
 # offsets set
 OFFSETS = {(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (0, 0)}
-PHYSICS_TILES = {'rock', 'cloud', 'grass'}
+PHYSICS_TILES = {'rock', 'cloud', 'grass', 'moss'}
 HOLLOW_TILES = {'portal'}
 # tiles that can be destroyed after being walked on
 DESTRUCTIBLE_TILES = {'cloud'}
 # time in seconds before tile destroys after being walked on
 DESTRUCTION_TIME = 0.4
 
-AUTO_TILE_TYPES = {'grass', 'cloud'}
+AUTO_TILE_TYPES = {'grass', 'cloud', 'rock', 'moss'}
 AUTO_TILE_MAP = {'0011': 1, '1011': 2, '1001': 3, '0001': 4, '0111': 5, '1111': 6, '1101': 7, '0101': 8,
                 '0110': 9, '1110': 10, '1100': 11, '0100': 12, '0010': 13, '1010': 14, '1000': 15, '0000': 16}
 
@@ -28,8 +28,6 @@ class TileMap:
 
         self.tile_map = {}
         self.off_grid = []
-
-        print(f"Loading level data from `{path}`")
 
         # load ongrid tiles
         for tile in data['level']['tiles']:
