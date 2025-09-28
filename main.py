@@ -23,6 +23,8 @@ SCALE = 2
 
 MAP = "data/maps/0.json"
 
+pygame.mixer.music.load("data/audio/chicken.ogg")
+
 # annelies
 class App:
     def __init__(self):
@@ -148,7 +150,7 @@ class App:
                 self.kickup.pop(i)
             else:
                 color = pygame.Color(p[3][0], p[3][1], p[3][2], int(p[2] / 10 * 255))
-                self.screen.set_at((p[0][0] - render_scroll[0], p[0][1] - render_scroll[1]), color)
+                self.screen.set_at((int(p[0][0] - render_scroll[0]), int(p[0][1] - render_scroll[1])), color)
 
     def update_sparks(self, render_scroll):
         for i, spark in sorted(enumerate(self.sparks), reverse=True):
@@ -395,7 +397,7 @@ class App:
                 millis = int((elapsed_time % 1) * 1000)
                 timer_text = f"{minutes:02d}:{seconds:02d}:{millis:02d}"
 
-                timer_color = (60, 108, 84)  # green when timer is running
+                timer_color = (60, 255, 84)  # green when timer is running
             else:
                 # Show 00:00:00 when timer hasn't started yet
                 timer_text = "00:00:000"
@@ -591,6 +593,7 @@ class App:
 
     # asynchronous main loop to run in browser
     async def run(self):
+        pygame.mixer.music.play(-1)
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

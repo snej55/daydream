@@ -9,4 +9,4 @@ Annelies:
 Pixel art
 
 Cornor:
-Everything else
+Levels, menu and everything else.
