@@ -1,6 +1,6 @@
 import asyncio, pygame, random, time, math, sys, platform
 
-from src.util import load_image, load_sound, load_tile_imgs
+from src.util import load_image, load_sound, load_tile_imgs, load_animation
 from src.tiles import TileMap
 from src.player import Player
 
@@ -36,13 +36,17 @@ class App:
 
         # sfx & image assets
         self.assets = {
+            # tiles
             "tiles/grass": load_tile_imgs("tiles/grass.png", 8),
             "tiles/cloud": load_tile_imgs("tiles/cloud.png", 8),
             "sfx/explosion": load_sound("sfx/explosion.ogg"),
+            # sfx
             "sfx/jump": load_sound("sfx/jump.ogg"),
             "sfx/falling": load_sound("sfx/falling.ogg"),
             "sfx/portal": load_sound("sfx/portal.ogg"),
-            "sfx/raining": load_sound("sfx/raining.ogg")
+            "sfx/raining": load_sound("sfx/raining.ogg"),
+            # player
+            "player/idle": load_animation("player/idle.png", [5, 8], 5)
         }
 
         self.tile_map = TileMap(self)
