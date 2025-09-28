@@ -8,7 +8,7 @@ PHYSICS_TILES = {'stone', 'cloud', 'grass'}
 # tiles that can be destroyed after being walked on
 DESTRUCTIBLE_TILES = {'grass'}
 # time in seconds before tile destroys after being walked on
-DESTRUCTION_TIME = 0.2
+DESTRUCTION_TIME = 0.00001
 
 class TileMap:
     def __init__(self, app):
@@ -59,13 +59,15 @@ class TileMap:
                 return self.tile_map[tile_loc]
     
     def get_adjacent_tiles(self, tile_loc):
-        """Get all adjacent tiles (4-directional) for a given tile location"""
+        """Get all adjacent tiles (including diagonals) for a given tile location"""
         adjacent_tiles = []
         # Parse the tile location
         x, y = map(int, tile_loc.split(';'))
         
-        # Check All the blocks (including diagonals)
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (1,1), (-1,1), (1,-1), (-1,-1)]:
+        # Check all surrounding blocks (including diagonals) using OFFSETS
+        for dx, dy in OFFSETS:
+            if (dx, dy) == (0, 0):  # Skip the center tile
+                continue
             adj_loc = f"{x + dx};{y + dy}"
             if adj_loc in self.tile_map:
                 adjacent_tiles.append(adj_loc)
@@ -79,19 +81,24 @@ class TileMap:
             if tile['type'] in DESTRUCTIBLE_TILES and not tile['walked_on']:
                 tile['walked_on'] = True
                 tile['destruction_timer'] = DESTRUCTION_TIME + delay
+                print(f"Marked tile {tile_loc} for destruction in {DESTRUCTION_TIME + delay} seconds")
+        else:
+            print(f"Tile {tile_loc} not found in tile_map")
     
     def mark_tile_walked_on(self, pos):
         """Mark a tile as walked on to start its destruction timer and mark adjacent tiles"""
         tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
+        print(f"Marking tile at {tile_loc} for destruction")
         
         # Mark the main tile for destruction
         self.mark_tile_for_destruction(tile_loc)
         
         # Mark all adjacent tiles for destruction with a small delay
         adjacent_tiles = self.get_adjacent_tiles(tile_loc)
+        print(f"Found {len(adjacent_tiles)} adjacent tiles to destroy")
         for adj_tile_loc in adjacent_tiles:
             # Add a small stagger delay for visual effect
-            delay = 0.1  # 0.1 second delay for adjacent tiles
+            delay = 0.2  # 0.2 second delay for adjacent tiles
             self.mark_tile_for_destruction(adj_tile_loc, delay)
     
     def update(self, dt):

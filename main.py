@@ -22,6 +22,7 @@ SCALE = 2
 large_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 42)
 small_font = pygame.font.Font("data/fonts/PixelOperator8-Bold.ttf", 36)
 
+
 MAP = "data/maps/0.json"
 # annelies
 class App:
