@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, random
 from .util import read_json
 
 TILE_SIZE = 8
@@ -197,6 +197,12 @@ class TileMap:
             if tile_loc in self.tile_map:  # Safety check
                 del self.tile_map[tile_loc]
                 self.auto_tile()
+                self.app.screen_shake = max(self.app.screen_shake, 6)
+                tile_pos = [int(coord) * 8 for coord in tile_loc.split(';')]
+                for _ in range(random.randint(10, 20)):
+                    speed = random.random() + 2
+                    angle = random.random() * math.pi * 2
+                    self.app.kickup.append([[tile_pos[0] + random.random() * 8, tile_pos[1] + random.random() * 8], [math.cos(angle) * speed, math.sin(angle) * speed], random.random() + 9, random.choice(self.app.kickup_palette)])
         
         # Cascade destruction to adjacent tiles (optional chain reaction)
         # Uncomment the lines below if you want chain reactions

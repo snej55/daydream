@@ -1,6 +1,6 @@
 import asyncio, pygame, random, time, math, sys, platform
 
-from src.util import load_image, load_sound, load_tile_imgs, load_animation
+from src.util import load_image, load_sound, load_tile_imgs, load_animation, load_palette
 from src.tiles import TileMap
 from src.player import Player
 
@@ -58,6 +58,7 @@ class App:
             "backdrop": load_image("tiles/background.png"),
             "tiles/large_decor": load_animation("tiles/large_decor.png", [50, 50], 6)
         }
+        self.kickup_palette = load_palette(self.assets["tiles/cloud"][0])
 
         self.tile_map = TileMap(self)
         self.tile_map.load(MAP)
@@ -89,7 +90,7 @@ class App:
 
         self.player = Player(self, [5, 8], [50, -10])
 
-        #menu loading
+        # menu loading
         self.prompt = self.large_font.render("Press ENTER to start", True, (255, 255, 255))
         self.logo_text = self.large_font.render("System of a Cloud", True, (255, 255, 255))
         self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
@@ -122,6 +123,7 @@ class App:
         self.screen.blit(self.logo_text, (self.screen.get_width() // 2 - self.logo_text.get_width() // 2, self.screen.get_height() // 10 - self.logo_text.get_height() // 2))        
     
         self.logo = pygame.transform.scale((pygame.image.load("data/images/tiles/penguin_arm.png")), (78, 120))
+
     def menu(self):
         self.screen.fill((0, 0, 0))
         self.screen.blit(self.prompt, (self.screen.get_width() // 2 - self.prompt.get_width() // 2, self.screen.get_height() // 1.55 - self.prompt.get_height() // 2))
@@ -257,6 +259,8 @@ class App:
         render_scroll = (int(self.scroll.x + screen_shake_offset[0]), int(self.scroll.y + screen_shake_offset[1]))
         self.screen.blit(pygame.transform.scale(self.assets['backdrop'], self.screen.get_size()), (0, 0))
         self.tile_map.draw(self.screen, render_scroll)
+
+        self.update_kickup(render_scroll)
 
         self.player.draw(self.screen, render_scroll)
         
