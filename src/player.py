@@ -25,7 +25,7 @@ class Player:
 
         self.collisions = {'up': False, 'down': False}
         self.movement.x += (self.movement.x * 0.6 - self.movement.x) * dt
-        self.movement.y += 0.2 * dt
+        self.movement.y = min(8, self.movement.y + 0.2 * dt)
 
         self.falling += dt
 
