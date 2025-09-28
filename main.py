@@ -70,6 +70,9 @@ class App:
 
     # put all the game stuff here
     def update(self):
+        # Update tile destruction timers
+        self.tile_map.update(self.dt / 60.0)  # Convert dt to seconds
+        
         self.player.update(self.dt, self.tile_map)
 
         render_scroll = (int(self.scroll.x), int(self.scroll.y))

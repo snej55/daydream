@@ -49,11 +49,15 @@ class Player:
         # repeat for y-axis
         self.pos.y += fm.y
         r = self.get_rect()
+        ground_collision = False
         for rect in tile_map.physics_rects_around(self.pos):
             if r.colliderect(rect):
                 if fm.y > 0:
                     r.bottom = rect.top
                     self.falling = 0
+                    ground_collision = True
+                    # Mark the tile as walked on when player lands on it
+                    tile_map.mark_tile_walked_on((rect.centerx, rect.centery))
                 if fm.y < 0:
                     r.top = rect.bottom
                 self.pos.y = r.y
