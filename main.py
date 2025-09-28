@@ -90,7 +90,12 @@ class App:
         
         self.player.update(self.dt, self.tile_map)
 
-        render_scroll = (int(self.scroll.x), int(self.scroll.y))
+        self.scroll.x += (self.player.pos.x - self.screen.get_width() / 2 - self.scroll.x) * 0.1 * self.dt
+        self.scroll.y += (self.player.pos.y - self.screen.get_height() / 2 - self.scroll.y) * 0.05 * self.dt
+
+        self.screen_shake = max(0, self.screen_shake - 1 * self.dt)
+        screen_shake_offset = (random.random() * self.screen_shake - self.screen_shake / 2, random.random() * self.screen_shake - self.screen_shake / 2)
+        render_scroll = (int(self.scroll.x + screen_shake_offset[0]), int(self.scroll.y + screen_shake_offset[1]))
         self.screen.fill((0, 0, 0))
         self.tile_map.draw(self.screen, render_scroll)
 
