@@ -1,5 +1,5 @@
 import pygame
-from util import read_json
+from .util import read_json
 
 TILE_SIZE = 8
 # offsets set
@@ -25,7 +25,7 @@ class TileMap:
         # load ongrid tiles
         for tile in data['level']['tiles']:
             tile_loc = f"{tile['pos'][0]};{tile['pos'][1]}"
-            self.tile_map[tile_loc] = {'type': tile['type'], 'variant': tile['variant'], 'timer': 0}
+            self.tile_map[tile_loc] = {'type': tile['type'], 'variant': tile['variant'], 'timer': 0, 'pos': tile['pos']}
 
         # load off grid tiles
         self.off_grid.extend(data['level']['off_grid'])
@@ -63,4 +63,4 @@ class TileMap:
                 loc = str(x) + ';' + str(y)
                 if loc in self.tile_map:
                     tile = self.tile_map[loc]
-                    surf.blit(self.app.assets[tile['type']][tile['variant']], (tile['pos'][0] * self.tile_size - scroll[0], tile['pos'][1] * self.tile_size - scroll[1]))
+                    surf.blit(self.app.assets[f"tiles/{tile['type']}"][tile['variant']], (tile['pos'][0] * self.tile_size - scroll[0], tile['pos'][1] * self.tile_size - scroll[1]))

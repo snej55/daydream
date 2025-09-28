@@ -1,7 +1,7 @@
 import pygame, os, json
 
 BASE_IMG_PATH = 'data/images/'
-BASE_AUDIO_PATH = 'data/audio/'
+BASE_AUDIO_PATH = 'data/sound/'
 
 def load_image(path) -> pygame.Surface:
     surf = pygame.image.load(BASE_IMG_PATH + path).convert()
@@ -15,6 +15,7 @@ def load_images(path):
     return imgs
 
 def load_sound(path) -> pygame.mixer.Sound:
+    path = 'data/sound/sfx/' + path
     return pygame.mixer.Sound(BASE_AUDIO_PATH + path)
 
 def load_tile_imgs(path, tile_size):
