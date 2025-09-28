@@ -143,12 +143,8 @@ class App:
         ]
         self.selected_button = 0
         self.menu_keybinds = [
-            "WASD / Arrow Keys: Move",
-            "Space / Up: Jump",
-            "P: Pause",
-            "R: Reset Position", 
-            "L: Toggle Lap View",
-            "ESC: Quit"
+            "WASD/Arrows: Move   Space/Up: Jump   P: Pause",
+            "R: Reset Position   L: Toggle Times   ESC: Quit"
         ]
     
     def update_fire(self, render_scroll):
@@ -232,7 +228,7 @@ class App:
         keybind_y += 15
         
         for keybind in self.menu_keybinds:
-            keybind_text = self.small_font.render(keybind, True, (180, 180, 180))
+            keybind_text = self.small_font.render(keybind, True, (255, 255, 255))
             self.screen.blit(keybind_text, (self.screen.get_width() // 2 - keybind_text.get_width() // 2, keybind_y))
             keybind_y += 12
     
@@ -271,7 +267,8 @@ class App:
     
     def credits_screen(self):
         """Draw the credits screen"""
-        self.screen.fill((0, 0, 0))
+        # Draw backdrop background instead of black fill
+        self.screen.blit(pygame.transform.scale(self.assets['backdrop'], self.screen.get_size()), (0, 0))
         
         credits_title = self.large_font.render("Credits", True, (255, 255, 255))
         title_x = self.screen.get_width() // 2 - credits_title.get_width() // 2
@@ -282,15 +279,15 @@ class App:
             "",
             "Programming: Python + Pygame",
             "",
-            "Press Q to return to menu"
+            "Press A to return to menu"
         ]
         
         y = 120
         for line in credits_text:
             if line:
-                text = self.small_font.render(line, True, (200, 200, 200))
+                text = self.small_font.render(line, True, (255, 255, 255))
             else:
-                text = self.small_font.render(" ", True, (200, 200, 200))
+                text = self.small_font.render(" ", True, (255, 255, 255))
             self.screen.blit(text, (self.screen.get_width() // 2 - text.get_width() // 2, y))
             y += 15        
     
@@ -924,7 +921,7 @@ class App:
                 if self.state == "menu":
                     self.handle_menu_input(event)
                 elif self.state == "credits":
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
                         self.state = "menu"
                 
                 if event.type == pygame.KEYDOWN:
