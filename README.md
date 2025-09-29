@@ -3,16 +3,18 @@
 Submission for Daydream Hackathon Cambridge (joint 1st place!).
 2D Platformer made with Pygame-ce & Python, where a penguin has to complete platforming challenges across collapsing levels.
 
+![screenshot](https://raw.githubusercontent.com/snej55/daydream/refs/heads/main/screenshot.png)
+
 ## Credits:
 
- - Jens:
+ - *Jens*:
 Core tile map system, level editor, vfx, music, player character.
 
- - Nathan:
+ - *Nathan*:
 Block destruction system, polish, level design, game state management.
 
- - Annelies:
+ - *Annelies*:
 Pixel art, color design & rest of graphics.
 
- - Conor:
+ - *Conor*:
 Level design, menu system and everything else.
