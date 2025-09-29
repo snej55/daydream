@@ -1,15 +1,18 @@
-Submission for Daydream Hackathon Cambridge.
-2D Platformer made with Pygame-ce & Python, where a penguin has to jump clouds that dissapear as the player walks.
+# System of a Cloud
 
-Roles:
-Jens:
-Tilemap & Collisions, Player, VFX, Music.
+Submission for Daydream Hackathon Cambridge (joint 1st place!).
+2D Platformer made with Pygame-ce & Python, where a penguin has to complete platforming challenges across collapsing levels.
 
-Nathan:
-Timer for block destruction, Level management system, 
+## Credits:
 
-Annelies:
-Pixel art & rest of graphics.
+ - Jens:
+Core tile map system, level editor, vfx, music, player character.
 
-Cornor:
-Levels, menu and everything else.
+ - Nathan:
+Block destruction system, polish, level design, game state management.
+
+ - Annelies:
+Pixel art, color design & rest of graphics.
+
+ - Conor:
+Level design, menu system and everything else.
